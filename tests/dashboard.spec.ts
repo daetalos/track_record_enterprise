@@ -2,13 +2,15 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Dashboard Application', () => {
   test('has correct title and loads dashboard', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/dashboard');
 
-    // Expect a title containing "Next.js" or similar (based on default Next.js title)
-    await expect(page).toHaveTitle(/Next.js|Create Next App/);
-    
+    // Expect the correct title from the dashboard page metadata
+    await expect(page).toHaveTitle('Dashboard | Modern Web App');
+
     // Check that the main content loads - look for the page structure
     await expect(page.locator('body')).toBeVisible();
+    
+    // The page should load the dashboard layout
     await expect(page.locator('.min-h-screen')).toBeVisible();
   });
 
