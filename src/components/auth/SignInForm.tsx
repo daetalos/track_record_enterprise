@@ -33,17 +33,18 @@ export default function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const message = searchParams?.get('message');
+  const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard';
 
   useEffect(() => {
     // Check if user is already signed in
     const checkSession = async () => {
       const session = await getSession();
       if (session) {
-        router.push('/');
+        router.push(callbackUrl);
       }
     };
     checkSession();
-  }, [router]);
+  }, [router, callbackUrl]);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -96,8 +97,8 @@ export default function SignInForm() {
           setErrors({ general: 'Authentication failed. Please try again.' });
         }
       } else if (result?.ok) {
-        // Sign in successful, redirect to dashboard
-        router.push('/');
+        // Sign in successful, redirect to originally requested page or dashboard
+        router.push(callbackUrl);
       }
     } catch (error) {
       console.error('Sign in error:', error);
