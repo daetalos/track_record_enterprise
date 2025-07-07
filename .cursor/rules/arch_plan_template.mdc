@@ -1,0 +1,320 @@
+---
+description: Standardized pattern for creating execution plans that deliver high-quality code in small, tested increments with proper version control
+globs: 
+alwaysApply: false
+---
+
+# Enterprise Execution Plan Pattern
+
+This rule establishes a standardized methodology for creating comprehensive execution plans that ensure high-quality code delivery through incremental development, comprehensive testing, and proper version control workflows.
+
+## Prerequisites
+
+Before creating execution plans, ensure:
+- Project has established Git repository with main branch protection
+- Development environment includes Node.js 20.x+, Git 2.30+, and PowerShell
+- Quality foundations are in place (ESLint, Prettier, testing framework)
+- Team understands conventional commits and feature branch workflows
+
+## Core Principle
+
+**ALWAYS break complex development initiatives into incremental phases with specific tasks, comprehensive validation criteria, and git-based quality gates to ensure enterprise-ready code delivery.**
+
+## Execution Plan Structure Standard
+
+### 1. Progress Tracking Dashboard (Required)
+
+Every execution plan MUST start with a comprehensive progress dashboard:
+
+```markdown
+## 📊 **PROGRESS TRACKING DASHBOARD**
+
+### **Overall Status**
+- **Current Phase**: [ ] Phase 1 | [ ] Phase 2 | [ ] Phase 3 | [ ] Phase 4
+- **Overall Progress**: X% Complete (Y of Z tasks completed)  
+- **Last Session Date**: [Current Date]
+- **Status**: [Current Status Description]
+
+### **Phase Progress Summary**
+| Phase | Tasks | Status | Duration Est. | Dependencies |
+|-------|-------|--------|---------------|--------------|
+| **Phase 1**: [Name] | X tasks | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | X-Y hours | None |
+
+### **Quick Task Status**
+**Phase 1 - [Name]**
+- [ ] 1.1: [Task Name]
+- [ ] 1.2: [Task Name]
+
+### **Session Quick Start**
+```powershell
+# Context Recovery Commands
+Get-Location                    # Verify project directory
+Test-Path package.json          # Confirm in correct project
+git status                      # See current changes
+npm run build                   # Test current state
+```
+```
+
+### 2. Plan Overview (Required)
+
+Include comprehensive project context:
+
+```markdown
+## 📋 **PLAN OVERVIEW**
+
+### **Current State Assessment**
+- **Project Type**: [Technology stack description]
+- **Foundation Quality**: [Assessment of existing foundation]
+- **Enterprise Readiness**: [Gap analysis]
+
+### **Target State**
+- **Primary Goals**: [Key objectives]
+- **Standards Compliance**: [Rules/standards to achieve]
+- **Success Metrics**: [Measurable outcomes]
+
+### **Implementation Strategy**
+- **Approach**: Incremental implementation across X phases
+- **Workflow**: Implement → Test → Commit for each task
+- **Session Support**: Plan designed for multi-session execution
+```
+
+### 3. Current State Analysis (Required)
+
+Provide detailed gap analysis:
+
+```markdown
+## 🔍 **CURRENT STATE ANALYSIS**
+
+### ✅ **EXISTING STRENGTHS**
+- [List current positive aspects]
+
+### ❌ **CRITICAL GAPS IDENTIFIED**
+**[Category Name] ([rule-reference.mdc])**
+- [Specific gap description]
+- [Impact assessment]
+```
+
+### 4. Phase Structure (Required)
+
+Each phase MUST follow this standardized format:
+
+```markdown
+# 🚀 **PHASE X: [PHASE NAME]**
+
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Completed
+
+## **PHASE OVERVIEW**
+[Description of phase purpose and scope]
+
+**Duration Estimate**: X-Y hours across multiple sessions
+**Dependencies**: [Previous phase or "None"]
+**Critical Path**: [Yes/No with justification]
+
+## **🌿 GIT WORKFLOW FOR PHASE X**
+**Branch**: `feat/phaseX-description`
+**PR Title**: `feat([scope]): implement Phase X - [description]`
+
+**Git Commands**:
+```powershell
+# Start Phase X
+git checkout main
+git pull origin main
+git checkout -b feat/phaseX-description
+
+# During development - commit after each task completion
+git add .
+git commit -m "[conventional commit message]"
+
+# End of Phase X
+git push -u origin feat/phaseX-description
+# Create PR with detailed description
+```
+
+## **📋 PHASE X TASKS**
+
+### **Task X.1: [Task Name]**
+**Rule Reference**: `[rule-file.mdc]`
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Completed
+**Dependencies**: [Previous task or "None"]
+
+**Implementation Steps**:
+1. [Specific implementation step]
+2. [Include exact commands when applicable]
+
+**Files to Create/Modify**:
+- `[file-path]` (new/modify)
+
+**Validation Criteria**:
+- [ ] [Specific testable criteria]
+- [ ] [Another validation requirement]
+
+**Test Commands**:
+```powershell
+[Specific commands to validate implementation]
+```
+
+**Commit Message**: `[conventional commit format]`
+
+### **🎯 PHASE X COMPLETION CRITERIA**
+Before proceeding to Phase X+1, verify all items:
+- [ ] [Comprehensive validation checklist]
+- [ ] [Quality gates verified]
+
+**Phase X Final Test**:
+```powershell
+# Full validation sequence
+[Commands to verify phase completion]
+```
+```
+
+### 5. Session Management Appendix (Required)
+
+Include comprehensive session recovery procedures:
+
+```markdown
+## 📚 **APPENDIX: SESSION MANAGEMENT**
+
+### **Starting a New Session**
+1. **Context Recovery**: Read progress dashboard
+2. **Git Status Check**: Verify branch and working directory
+3. **Status Check**: Update checkboxes based on actual completion
+4. **Environment Verification**: Run validation commands
+5. **Task Identification**: Find next uncompleted task
+
+### **Session Workflow**
+1. **Plan** → Review task details and validation criteria
+2. **Branch** → Ensure on correct phase feature branch  
+3. **Implement** → Follow implementation steps systematically
+4. **Test** → Run all validation tests
+5. **Commit** → Use conventional commit messages
+6. **Update Progress** → Mark task as completed
+
+### **Quality Gates**
+Each phase has completion criteria that MUST be met before proceeding.
+
+### **Emergency Recovery**
+If issues occur:
+1. Check git status and recent commits
+2. Review error logs and test failures
+3. Consult specific rule documentation
+4. Rollback to last known good state if needed
+```
+
+## Implementation Guidelines
+
+### Phase Design Rules
+1. **Maximum 4 phases** - Keep execution plans manageable
+2. **2-4 tasks per phase** - Ensure focused, achievable scope
+3. **Clear dependencies** - Each phase builds on previous work
+4. **Testable outcomes** - Every task has validation criteria
+
+### Task Structure Rules
+1. **Single responsibility** - Each task accomplishes one clear objective
+2. **Rule reference** - Link to specific .mdc rule for detailed guidance
+3. **Specific validation** - Include exact test commands and success criteria
+4. **Conventional commits** - Use standard commit message format
+
+### Git Integration Rules
+1. **Feature branches** - Each phase uses dedicated feature branch
+2. **Incremental commits** - Commit after each completed task
+3. **Pull requests** - Phase completion requires PR with review
+4. **Branch cleanup** - Remove feature branches after merge
+
+## Validation Checklist for Execution Plans
+
+Before finalizing any execution plan, verify:
+
+- [ ] **Progress dashboard** provides complete status tracking
+- [ ] **Current state analysis** identifies specific gaps with rule references
+- [ ] **Each phase** has clear objectives, dependencies, and completion criteria
+- [ ] **Each task** includes implementation steps, validation criteria, and test commands
+- [ ] **Git workflow** is properly defined with conventional commits
+- [ ] **Session management** provides context recovery procedures
+- [ ] **Validation commands** are specific and testable
+
+## Common Scenarios
+
+### Scenario: Multi-Technology Integration Project
+**Guidance**: Create phases based on technology domains (backend, frontend, deployment)
+**Reasoning**: Enables parallel development and reduces integration complexity
+
+### Scenario: Legacy System Modernization  
+**Guidance**: Phase by replacing one subsystem at a time while maintaining functionality
+**Reasoning**: Minimizes risk and ensures continuous system operation
+
+### Scenario: New Feature Development
+**Guidance**: Phase by infrastructure → core logic → UI → integration → deployment
+**Reasoning**: Builds solid foundation before user-facing features
+
+## Examples
+
+✅ **Recommended Execution Plan Structure:**
+```markdown
+# Project Modernization Plan
+## Progress Dashboard (with checkboxes and session recovery)
+## Plan Overview (current → target state)
+## Current State Analysis (strengths vs gaps)
+## Phase 1: Foundation (infrastructure, quality tools)
+## Phase 2: Core Features (business logic, data layer)  
+## Phase 3: User Interface (components, styling)
+## Phase 4: Production Ready (deployment, monitoring)
+## Session Management Appendix
+```
+
+❌ **Avoid This Structure:**
+```markdown
+# Incomplete Plan
+- Do authentication
+- Add database  
+- Make it look good
+- Deploy somewhere
+```
+
+---
+
+**Note**: This pattern ensures systematic delivery of enterprise-quality code through incremental development, comprehensive testing, and proper version control workflows while maintaining session continuity across development cycles.
+```
+
+I've created a comprehensive execution plan pattern that establishes a standardized methodology for complex development projects. Here are the key principles extracted from the enterprise modernization master plan:
+
+## 🎯 **Key Pattern Elements**
+
+### **1. Progress Tracking Dashboard**
+- Real-time status tracking with checkboxes
+- Phase progress summary table
+- Session recovery commands
+- Clear completion metrics
+
+### **2. Incremental Phase Structure**
+- Maximum 4 phases for manageability
+- 2-4 focused tasks per phase
+- Clear dependencies between phases
+- Comprehensive validation criteria
+
+### **3. Git Integration Workflow**
+- Feature branch per phase
+- Conventional commits per task
+- Pull request gate per phase
+- Branch cleanup procedures
+
+### **4. Quality Gates**
+- Specific validation criteria per task
+- Test commands for verification
+- Completion criteria per phase
+- Emergency recovery procedures
+
+### **5. Session Management**
+- Context recovery procedures
+- Multi-session execution support
+- Progress state persistence
+- Environment verification commands
+
+## 🚀 **Benefits of This Pattern**
+
+1. **Quality Assurance**: Every task has specific validation criteria and test commands
+2. **Incremental Delivery**: Small, testable changes committed frequently
+3. **Session Continuity**: Easy to resume work across multiple development sessions
+4. **Risk Mitigation**: Clear rollback procedures and dependency management
+5. **Team Collaboration**: Standardized structure enables consistent execution across team members
+
+This pattern ensures that complex development initiatives are broken down into manageable, testable increments while maintaining enterprise-quality standards and proper version control workflows.
