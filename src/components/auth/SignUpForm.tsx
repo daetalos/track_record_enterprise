@@ -5,10 +5,138 @@ import Label from '@/components/form/Label';
 import { ChevronLeftIcon, EyeCloseIcon, EyeIcon } from '@/icons';
 import Link from 'next/link';
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface FormData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+}
+
+interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  password?: string;
+  general?: string;
+}
 
 export default function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState<FormData>({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+  });
+  const [errors, setErrors] = useState<FormErrors>({});
+
+  const router = useRouter();
+
+  const handleInputChange = (field: keyof FormData, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+    // Clear error when user starts typing
+    if (errors[field]) {
+      setErrors(prev => ({ ...prev, [field]: undefined }));
+    }
+  };
+
+  const validateForm = (): boolean => {
+    const newErrors: FormErrors = {};
+
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = 'First name is required';
+    }
+
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = 'Last name is required';
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Please enter a valid email address';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+
+    if (!isChecked) {
+      newErrors.general = 'You must agree to the Terms and Conditions';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsLoading(true);
+    setErrors({});
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Registration successful, redirect to sign in
+        router.push('/signin?message=Registration successful. Please sign in.');
+      } else {
+        // Handle registration errors
+        if (response.status === 409) {
+          setErrors({ email: 'An account with this email already exists' });
+        } else if (data.details) {
+          // Handle validation errors
+          const validationErrors: FormErrors = {};
+          data.details.forEach(
+            (detail: { path: string[]; message: string }) => {
+              const field = detail.path[0];
+              if (field === 'name') {
+                validationErrors.firstName = detail.message;
+              } else if (field in validationErrors) {
+                validationErrors[field as keyof FormErrors] = detail.message;
+              }
+            }
+          );
+          setErrors(validationErrors);
+        } else {
+          setErrors({
+            general: data.error || 'Registration failed. Please try again.',
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Registration error:', error);
+      setErrors({
+        general: 'Network error. Please check your connection and try again.',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="flex flex-col flex-1 lg:w-1/2 w-full overflow-y-auto no-scrollbar">
       <div className="w-full max-w-md sm:pt-10 mx-auto mb-5">
@@ -27,12 +155,16 @@ export default function SignUpForm() {
               Sign Up
             </h1>
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              Enter your email and password to sign up!
+              Enter your details to create an account!
             </p>
           </div>
           <div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-5">
-              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+              <button
+                type="button"
+                disabled={isLoading}
+                className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <svg
                   width="20"
                   height="20"
@@ -59,7 +191,11 @@ export default function SignUpForm() {
                 </svg>
                 Sign up with Google
               </button>
-              <button className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10">
+              <button
+                type="button"
+                disabled={isLoading}
+                className="inline-flex items-center justify-center gap-3 py-3 text-sm font-normal text-gray-700 transition-colors bg-gray-100 rounded-lg px-7 hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <svg
                   width="21"
                   className="fill-current"
@@ -83,10 +219,17 @@ export default function SignUpForm() {
                 </span>
               </div>
             </div>
-            <form>
+
+            {errors.general && (
+              <div className="mb-4 p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+                {errors.general}
+              </div>
+            )}
+
+            <form onSubmit={handleSubmit}>
               <div className="space-y-5">
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-                  {/* <!-- First Name --> */}
+                  {/* First Name */}
                   <div className="sm:col-span-1">
                     <Label>
                       First Name<span className="text-error-500">*</span>
@@ -96,9 +239,20 @@ export default function SignUpForm() {
                       id="fname"
                       name="fname"
                       placeholder="Enter your first name"
+                      value={formData.firstName}
+                      onChange={e =>
+                        handleInputChange('firstName', e.target.value)
+                      }
+                      disabled={isLoading}
+                      className={errors.firstName ? 'border-red-500' : ''}
                     />
+                    {errors.firstName && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {errors.firstName}
+                      </p>
+                    )}
                   </div>
-                  {/* <!-- Last Name --> */}
+                  {/* Last Name */}
                   <div className="sm:col-span-1">
                     <Label>
                       Last Name<span className="text-error-500">*</span>
@@ -108,10 +262,21 @@ export default function SignUpForm() {
                       id="lname"
                       name="lname"
                       placeholder="Enter your last name"
+                      value={formData.lastName}
+                      onChange={e =>
+                        handleInputChange('lastName', e.target.value)
+                      }
+                      disabled={isLoading}
+                      className={errors.lastName ? 'border-red-500' : ''}
                     />
+                    {errors.lastName && (
+                      <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                        {errors.lastName}
+                      </p>
+                    )}
                   </div>
                 </div>
-                {/* <!-- Email --> */}
+                {/* Email */}
                 <div>
                   <Label>
                     Email<span className="text-error-500">*</span>
@@ -121,9 +286,18 @@ export default function SignUpForm() {
                     id="email"
                     name="email"
                     placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={e => handleInputChange('email', e.target.value)}
+                    disabled={isLoading}
+                    className={errors.email ? 'border-red-500' : ''}
                   />
+                  {errors.email && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
-                {/* <!-- Password --> */}
+                {/* Password */}
                 <div>
                   <Label>
                     Password<span className="text-error-500">*</span>
@@ -132,6 +306,12 @@ export default function SignUpForm() {
                     <Input
                       placeholder="Enter your password"
                       type={showPassword ? 'text' : 'password'}
+                      value={formData.password}
+                      onChange={e =>
+                        handleInputChange('password', e.target.value)
+                      }
+                      disabled={isLoading}
+                      className={errors.password ? 'border-red-500' : ''}
                     />
                     <span
                       onClick={() => setShowPassword(!showPassword)}
@@ -144,13 +324,19 @@ export default function SignUpForm() {
                       )}
                     </span>
                   </div>
+                  {errors.password && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                      {errors.password}
+                    </p>
+                  )}
                 </div>
-                {/* <!-- Checkbox --> */}
-                <div className="flex items-center gap-3">
+                {/* Checkbox */}
+                <div className="flex items-start gap-3">
                   <Checkbox
-                    className="w-5 h-5"
+                    className="w-5 h-5 mt-0.5"
                     checked={isChecked}
                     onChange={setIsChecked}
+                    disabled={isLoading}
                   />
                   <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
                     By creating an account means you agree to the{' '}
@@ -163,10 +349,14 @@ export default function SignUpForm() {
                     </span>
                   </p>
                 </div>
-                {/* <!-- Button --> */}
+                {/* Button */}
                 <div>
-                  <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                    Sign Up
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? 'Creating Account...' : 'Sign Up'}
                   </button>
                 </div>
               </div>
@@ -174,7 +364,7 @@ export default function SignUpForm() {
 
             <div className="mt-5">
               <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Already have an account?
+                Already have an account?{' '}
                 <Link
                   href="/signin"
                   className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
