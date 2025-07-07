@@ -49,7 +49,12 @@ export const checkDatabaseConnection = async () => {
 
 // Transaction helper with error handling
 export const withTransaction = async <T>(
-  fn: (tx: PrismaClient) => Promise<T>
+  fn: (
+    tx: Omit<
+      PrismaClient,
+      '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'
+    >
+  ) => Promise<T>
 ): Promise<T> => {
   return await prisma.$transaction(fn);
 };
