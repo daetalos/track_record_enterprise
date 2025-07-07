@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 
 export default withAuth(
   function middleware() {
-    // Add any additional middleware logic here
+    // If we get here, the user is authenticated
     return NextResponse.next();
   },
   {
@@ -11,26 +11,19 @@ export default withAuth(
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
 
-        // Public routes that don't require authentication
-        const publicRoutes = [
-          '/signin',
-          '/signup',
-          '/api/auth',
-          '/api/auth/register',
-          '/',
-        ];
-
-        // Check if current path is public
-        const isPublicRoute = publicRoutes.some(route =>
-          pathname.startsWith(route)
-        );
-
-        // Allow access to public routes
-        if (isPublicRoute) {
+        // Define public routes that don't require authentication
+        if (
+          pathname === '/' ||
+          pathname === '/signin' ||
+          pathname === '/signup' ||
+          pathname.startsWith('/api/auth') ||
+          pathname.startsWith('/signin') ||
+          pathname.startsWith('/signup')
+        ) {
           return true;
         }
 
-        // Require authentication for all other routes
+        // For all other routes, require authentication
         return !!token;
       },
     },
@@ -40,13 +33,8 @@ export default withAuth(
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - api (API routes)
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
+     * Match all request paths except for static files and images
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!_next/static|_next/image|favicon.ico|public).*)',
   ],
 };
