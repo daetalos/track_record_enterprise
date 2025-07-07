@@ -21,7 +21,8 @@ describe('Database Client', () => {
         id: '1',
         email: 'test@example.com',
         name: 'Test User',
-        hashedPassword: 'hashedpassword123',
+        emailVerified: null,
+        image: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -32,7 +33,6 @@ describe('Database Client', () => {
         data: {
           email: 'test@example.com',
           name: 'Test User',
-          hashedPassword: 'hashedpassword123',
         },
       });
 
@@ -41,7 +41,6 @@ describe('Database Client', () => {
         data: {
           email: 'test@example.com',
           name: 'Test User',
-          hashedPassword: 'hashedpassword123',
         },
       });
     });
@@ -51,7 +50,8 @@ describe('Database Client', () => {
         id: '1',
         email: 'test@example.com',
         name: 'Test User',
-        hashedPassword: 'hashedpassword123',
+        emailVerified: null,
+        image: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -83,6 +83,8 @@ describe('Database Client', () => {
         sessionToken: 'session123',
         userId: '1',
         expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       prismaMock.session.create.mockResolvedValue(mockSession);
@@ -107,6 +109,15 @@ describe('Database Client', () => {
         type: 'credentials' as const,
         provider: 'credentials',
         providerAccountId: '1',
+        refresh_token: null,
+        access_token: null,
+        expires_at: null,
+        token_type: null,
+        scope: null,
+        id_token: null,
+        session_state: null,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
 
       prismaMock.account.create.mockResolvedValue(mockAccount);

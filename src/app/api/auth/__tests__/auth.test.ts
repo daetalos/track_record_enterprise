@@ -73,6 +73,8 @@ describe('Authentication Utilities', () => {
         id: '1',
         email: userData.email,
         name: 'Existing User',
+        emailVerified: null,
+        image: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -95,6 +97,8 @@ describe('Authentication Utilities', () => {
         id: '1',
         email,
         name: 'Test User',
+        emailVerified: null,
+        image: null,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
