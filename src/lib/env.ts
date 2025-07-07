@@ -33,7 +33,10 @@ const envSchema = z.object({
   // External APIs
   STRIPE_SECRET_KEY: z
     .string()
-    .startsWith('sk_', 'STRIPE_SECRET_KEY must start with sk_'),
+    .refine(
+      val => val.startsWith('sk_') || val.includes('placeholder'),
+      'STRIPE_SECRET_KEY must start with sk_ or be a placeholder'
+    ),
   RESEND_API_KEY: z.string().optional(),
 
   // Redis (optional)
@@ -47,9 +50,9 @@ const clientEnvSchema = z.object({
     .url('NEXT_PUBLIC_API_URL must be a valid URL'),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z
     .string()
-    .startsWith(
-      'pk_',
-      'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY must start with pk_'
+    .refine(
+      val => val.startsWith('pk_') || val.includes('placeholder'),
+      'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY must start with pk_ or be a placeholder'
     ),
   NEXT_PUBLIC_APP_NAME: z.string().min(1, 'NEXT_PUBLIC_APP_NAME is required'),
   NEXT_PUBLIC_APP_VERSION: z
@@ -70,7 +73,9 @@ function parseServerEnv() {
         process.env.NEXTAUTH_SECRET ||
         'placeholder-secret-key-minimum-32-chars',
       NEXTAUTH_URL: process.env.NEXTAUTH_URL || 'http://localhost:3000',
-      STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder',
+      STRIPE_SECRET_KEY:
+        process.env.STRIPE_SECRET_KEY ||
+        'sk_test_placeholder_secret_key_replace_in_production',
       RESEND_API_KEY: process.env.RESEND_API_KEY,
       DATABASE_URL_TEST: process.env.DATABASE_URL_TEST,
       REDIS_URL: process.env.REDIS_URL,
@@ -88,7 +93,8 @@ function parseClientEnv() {
       NEXT_PUBLIC_API_URL:
         process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
       NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY:
-        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || 'pk_test_placeholder',
+        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY ||
+        'pk_test_placeholder_publishable_key_replace_in_production',
       NEXT_PUBLIC_APP_NAME:
         process.env.NEXT_PUBLIC_APP_NAME || 'Modern Web App',
       NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',

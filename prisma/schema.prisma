@@ -6,6 +6,8 @@
 
 generator client {
   provider = "prisma-client-js"
+  // CRITICAL: Multiple binary targets prevent Docker deployment crashes
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x", "linux-musl", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
