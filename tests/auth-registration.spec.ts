@@ -246,7 +246,8 @@ test.describe('User Registration Flow', () => {
     // Click the back link
     await page.getByRole('link', { name: 'Back to dashboard' }).click();
 
-    // Should navigate to dashboard
-    await expect(page).toHaveURL('/dashboard');
+    // Should redirect to signin since dashboard requires authentication
+    await expect(page).toHaveURL(/signin/);
+    await expect(page.locator('h1')).toContainText('Sign In');
   });
 });
