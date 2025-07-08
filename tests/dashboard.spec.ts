@@ -12,10 +12,10 @@ test.describe('Dashboard Application', () => {
   test('loads dashboard when authenticated', async ({ page }) => {
     // Generate a unique email for this test
     const testEmail = `test.dashboard.${Date.now()}@example.com`;
-    
+
     // Register and authenticate first
     await page.goto('/signup');
-    
+
     // Fill out registration form
     await page.getByPlaceholder('Enter your first name').fill('Test');
     await page.getByPlaceholder('Enter your last name').fill('User');
@@ -30,7 +30,7 @@ test.describe('Dashboard Application', () => {
     // Now sign in with the same credentials
     await page.getByPlaceholder('Enter your email').fill(testEmail);
     await page.getByPlaceholder('Enter your password').fill('password123');
-    
+
     // Use exact matching to avoid ambiguity with Google/X signin buttons
     await page.getByRole('button', { name: 'Sign In', exact: true }).click();
 
@@ -48,7 +48,7 @@ test.describe('Dashboard Application', () => {
 
     // Test that we can navigate to public pages
     await expect(page.locator('body')).toBeVisible();
-    
+
     // Check if navigation exists
     const navigation = page.locator('nav, [role="navigation"]');
     if (await navigation.isVisible()) {
@@ -56,16 +56,21 @@ test.describe('Dashboard Application', () => {
     }
   });
 
-  test('responsive design works on mobile for public pages', async ({ page }) => {
+  test('responsive design works on mobile for public pages', async ({
+    page,
+  }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
 
     // Check that the page is responsive - just verify page loads
     await expect(page.locator('body')).toBeVisible();
-    
+
     // Check for any container element - be more flexible
-    const hasAnyContainer = await page.locator('div, section, main').first().isVisible();
+    const hasAnyContainer = await page
+      .locator('div, section, main')
+      .first()
+      .isVisible();
     expect(hasAnyContainer).toBe(true);
   });
 
