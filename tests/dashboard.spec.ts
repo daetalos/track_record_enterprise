@@ -9,7 +9,7 @@ test.describe('Dashboard Application', () => {
 
     // Check that the main content loads - look for the page structure
     await expect(page.locator('body')).toBeVisible();
-    
+
     // The page should load the dashboard layout
     await expect(page.locator('.min-h-screen')).toBeVisible();
   });
@@ -33,9 +33,11 @@ test.describe('Dashboard Application', () => {
     // Check that the page is responsive
     await expect(page.locator('body')).toBeVisible();
     await expect(page.locator('.min-h-screen')).toBeVisible();
-    
+
     // Check that mobile navigation works (if implemented)
-    const mobileMenu = page.locator('[data-testid="mobile-menu"], .mobile-menu');
+    const mobileMenu = page.locator(
+      '[data-testid="mobile-menu"], .mobile-menu'
+    );
     // Only test if mobile menu exists
     if (await mobileMenu.isVisible()) {
       await expect(mobileMenu).toBeVisible();
@@ -46,13 +48,18 @@ test.describe('Dashboard Application', () => {
     await page.goto('/');
 
     // Look for theme toggle button
-    const themeToggle = page.locator('[data-testid="theme-toggle"], button[aria-label*="theme"], button[aria-label*="dark"], button[aria-label*="light"]');
-    
+    const themeToggle = page.locator(
+      '[data-testid="theme-toggle"], button[aria-label*="theme"], button[aria-label*="dark"], button[aria-label*="light"]'
+    );
+
     if (await themeToggle.isVisible()) {
       await themeToggle.click();
-      
+
       // Check that theme changes (this might need adjustment based on implementation)
-      await expect(page.locator('html, body')).toHaveAttribute('class', /dark|light/);
+      await expect(page.locator('html, body')).toHaveAttribute(
+        'class',
+        /dark|light/
+      );
     }
   });
-}); 
+});
