@@ -171,6 +171,26 @@ npm run test:all                # Complete unit + E2E tests
 npm run validate:pre-docker     # Full validation pipeline
 ```
 
+### **Step 6.5: Docker Deployment Validation**
+
+```powershell
+# Deploy to Docker and validate database schema changes
+docker-compose up --build -d
+docker-compose ps              # Verify all containers are running
+docker-compose logs web --tail=50  # Check for deployment errors
+
+# Validate database schema in containerized environment
+docker-compose exec db psql -U postgres -d modern_web_app -c "\dt"  # List tables
+docker-compose exec db psql -U postgres -d modern_web_app -c "\d clubs"  # Check Club table structure
+docker-compose exec db psql -U postgres -d modern_web_app -c "\d user_clubs"  # Check UserClub table structure
+
+# Test application startup with new schema
+curl http://localhost:3000/api/health || echo "Health check endpoint test"
+
+# Clean up Docker environment
+docker-compose down
+```
+
 ### **Step 7: Create PR & Merge**
 
 ```powershell
@@ -225,6 +245,7 @@ ALL items must be verified before creating PR:
 - [ ] Level 1 tests pass (quality:check, test:run)
 - [ ] Level 2 tests pass (test:coverage, build)
 - [ ] Level 3 tests pass (test:all, validate:pre-docker)
+- [ ] Docker deployment validation passes (containers start, database schema is accessible)
 - [ ] Database migration executes successfully
 - [ ] Prisma client generates without errors
 - [ ] TypeScript compilation succeeds with new models
@@ -288,6 +309,26 @@ npm run test:all                # Complete unit + E2E tests
 npm run validate:pre-docker     # Full validation pipeline
 ```
 
+### **Step 6.5: Docker Deployment Validation**
+
+```powershell
+# Deploy to Docker and validate state management functionality
+docker-compose up --build -d
+docker-compose ps              # Verify all containers are running
+docker-compose logs web --tail=50  # Check for deployment errors
+
+# Validate Zustand integration in containerized environment
+curl http://localhost:3000 -I  # Test application loads
+# Manual validation: Open browser, check localStorage persistence
+# Manual validation: Verify club context provider loads without errors
+
+# Check for hydration and SSR compatibility
+docker-compose logs web | grep -i "error\|warning" | head -10
+
+# Clean up Docker environment
+docker-compose down
+```
+
 ### **Step 7: Create PR & Merge**
 
 ```powershell
@@ -344,6 +385,7 @@ ALL items must be verified before creating PR:
 - [ ] Level 1 tests pass (quality:check, test:run)
 - [ ] Level 2 tests pass (test:coverage, build)
 - [ ] Level 3 tests pass (test:all, validate:pre-docker)
+- [ ] Docker deployment validation passes (application loads, no SSR/hydration issues)
 - [ ] Zustand store functions correctly with TypeScript
 - [ ] Session persistence saves and restores club selection
 - [ ] Club context provider integrates without errors
@@ -407,6 +449,26 @@ npm run test:all                # Complete unit + E2E tests
 npm run validate:pre-docker     # Full validation pipeline
 ```
 
+### **Step 6.5: Docker Deployment Validation**
+
+```powershell
+# Deploy to Docker and validate API endpoints functionality
+docker-compose up --build -d
+docker-compose ps              # Verify all containers are running
+docker-compose logs web --tail=50  # Check for deployment errors
+
+# Validate API endpoints in containerized environment
+curl http://localhost:3000/api/clubs -H "Authorization: Bearer [token]" || echo "GET clubs endpoint test"
+curl -X POST http://localhost:3000/api/clubs/select -H "Content-Type: application/json" -d '{"clubId":"test"}' || echo "POST select endpoint test"
+
+# Test API endpoint accessibility and error handling
+curl http://localhost:3000/api/clubs -I  # Check endpoint is accessible
+docker-compose logs web | grep -i "API\|endpoint\|clubs" | tail -5
+
+# Clean up Docker environment
+docker-compose down
+```
+
 ### **Step 7: Create PR & Merge**
 
 ```powershell
@@ -462,6 +524,7 @@ ALL items must be verified before creating PR:
 - [ ] Level 1 tests pass (quality:check, test:run)
 - [ ] Level 2 tests pass (test:coverage, build)
 - [ ] Level 3 tests pass (test:all, validate:pre-docker)
+- [ ] Docker deployment validation passes (API endpoints accessible and functional)
 - [ ] GET /api/clubs returns user's accessible clubs correctly
 - [ ] POST /api/clubs/select validates and sets club context
 - [ ] Proper error handling for unauthorized club access
@@ -525,6 +588,28 @@ npm run test:all                # Complete unit + E2E tests
 npm run validate:pre-docker     # Full validation pipeline
 ```
 
+### **Step 6.5: Docker Deployment Validation**
+
+```powershell
+# Deploy to Docker and validate UI components functionality
+docker-compose up --build -d
+docker-compose ps              # Verify all containers are running
+docker-compose logs web --tail=50  # Check for deployment errors
+
+# Validate club selector UI in containerized environment
+curl http://localhost:3000 -I  # Test application loads with UI components
+# Manual validation: Open browser at http://localhost:3000
+# Manual validation: Verify club selector renders in navigation
+# Manual validation: Test club switching functionality
+# Manual validation: Check responsive design on different screen sizes
+
+# Check for component rendering issues
+docker-compose logs web | grep -i "error\|hydration\|rendering" | head -10
+
+# Clean up Docker environment
+docker-compose down
+```
+
 ### **Step 7: Create PR & Merge**
 
 ```powershell
@@ -580,6 +665,7 @@ ALL items must be verified before creating PR:
 - [ ] Level 1 tests pass (quality:check, test:run)
 - [ ] Level 2 tests pass (test:coverage, build)
 - [ ] Level 3 tests pass (test:all, validate:pre-docker)
+- [ ] Docker deployment validation passes (UI renders correctly, no hydration issues)
 - [ ] ClubSelector renders correctly with proper styling
 - [ ] Club switching triggers API calls and updates state
 - [ ] Loading states and error handling work properly
@@ -644,6 +730,33 @@ npm run test:all                # Complete unit + E2E tests
 npm run validate:pre-docker     # Full validation pipeline
 ```
 
+### **Step 6.5: Docker Deployment Validation**
+
+```powershell
+# Deploy to Docker and validate complete end-to-end functionality
+docker-compose up --build -d
+docker-compose ps              # Verify all containers are running
+docker-compose logs web --tail=50  # Check for deployment errors
+
+# Validate complete club management functionality in containerized environment
+curl http://localhost:3000 -I  # Test application loads
+# Manual validation: Complete end-to-end test
+# Manual validation: Sign in as different users
+# Manual validation: Verify club context switching works
+# Manual validation: Confirm data isolation between clubs
+# Manual validation: Test unauthorized club access is blocked
+
+# Test API security and data isolation
+curl http://localhost:3000/api/clubs -H "Authorization: Bearer [token]"
+curl http://localhost:3000/api/clubs/select -X POST -H "Content-Type: application/json" -d '{"clubId":"unauthorized"}'
+
+# Performance validation
+docker-compose logs web | grep -i "performance\|slow\|timeout" | head -10
+
+# Clean up Docker environment
+docker-compose down
+```
+
 ### **Step 7: Create PR & Merge**
 
 ```powershell
@@ -700,6 +813,7 @@ ALL items must be verified before creating PR:
 - [ ] Level 1 tests pass (quality:check, test:run)
 - [ ] Level 2 tests pass (test:coverage, build)
 - [ ] Level 3 tests pass (test:all, validate:pre-docker)
+- [ ] Docker deployment validation passes (complete end-to-end functionality works)
 - [ ] Data isolation prevents cross-club data access
 - [ ] All API endpoints respect club context
 - [ ] Unauthorized club access is properly blocked
@@ -728,14 +842,16 @@ ALL items must be verified before creating PR:
 5. **Develop** → Refine based on immediate feedback
 6. **Test L2** → `npm run test:coverage && npm run build`
 7. **Test L3** → `npm run test:all && npm run validate:pre-docker`
-8. **Create PR** → Push branch and create detailed pull request
-9. **Update Progress** → Mark iteration as completed
+8. **Docker Validation** → `docker-compose up --build -d` + feature validation
+9. **Create PR** → Push branch and create detailed pull request
+10. **Update Progress** → Mark iteration as completed
 
-### **Quality Gates (3-Level Testing Pyramid)**
+### **Quality Gates (4-Level Testing Pyramid)**
 
 - **Level 1**: Immediate feedback (quality:check, test:run)
 - **Level 2**: Integration validation (test:coverage, build)
 - **Level 3**: Release readiness (test:all, validate:pre-docker)
+- **Level 4**: Docker deployment validation (containerized environment testing)
 
 ### **Emergency Recovery**
 

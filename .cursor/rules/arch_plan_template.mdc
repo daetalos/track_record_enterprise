@@ -156,6 +156,21 @@ npm run test:all                # Complete unit + E2E tests
 npm run validate:pre-docker     # Full validation pipeline
 ```
 
+### **Step 6.5: Docker Deployment Validation**
+```powershell
+# Deploy to Docker and validate functionality
+docker-compose up --build -d
+docker-compose ps              # Verify all containers are running
+docker-compose logs web --tail=50  # Check for deployment errors
+
+# Validate iteration functionality in containerized environment
+# [Specific validation steps for each iteration's features]
+# Example: Test API endpoints, verify database connectivity, check UI rendering
+
+# Clean up Docker environment
+docker-compose down
+```
+
 ### **Step 7: Create PR & Merge (From git-standards.mdc)**
 ```powershell
 # Push feature branch
@@ -195,6 +210,7 @@ ALL items must be verified before creating PR:
 - [ ] Level 1 tests pass (quality:check, test:run)
 - [ ] Level 2 tests pass (test:coverage, build)
 - [ ] Level 3 tests pass (test:all, validate:pre-docker)
+- [ ] Docker deployment validation passes (containers start, functionality works)
 - [ ] No regression issues detected
 - [ ] Feature is completely functional and isolated
 - [ ] Documentation updated if needed
@@ -222,13 +238,15 @@ Include comprehensive session recovery procedures:
 5. **Develop** → Refine based on immediate feedback
 6. **Test L2** → `npm run test:coverage && npm run build`
 7. **Test L3** → `npm run test:all && npm run validate:pre-docker`
-8. **Create PR** → Push branch and create detailed pull request
-9. **Update Progress** → Mark iteration as completed
+8. **Docker Validation** → `docker-compose up --build -d` + feature validation
+9. **Create PR** → Push branch and create detailed pull request
+10. **Update Progress** → Mark iteration as completed
 
-### **Quality Gates (3-Level Testing Pyramid)**
+### **Quality Gates (4-Level Testing Pyramid)**
 - **Level 1**: Immediate feedback (quality:check, test:run)
 - **Level 2**: Integration validation (test:coverage, build)
 - **Level 3**: Release readiness (test:all, validate:pre-docker)
+- **Level 4**: Docker deployment validation (containerized environment testing)
 
 ### **Emergency Recovery**
 If issues occur during an iteration:
