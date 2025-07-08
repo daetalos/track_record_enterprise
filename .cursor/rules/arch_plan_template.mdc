@@ -185,6 +185,15 @@ git pull origin main
 git branch -d feat/iterationX-feature-name
 ```
 
+### **Step 8: Update Progress Tracking**
+```powershell
+# Update execution plan with iteration completion
+# Mark iteration as completed in progress dashboard
+# Update overall progress percentage
+# Update current iteration status
+# Set next iteration as ready to begin
+```
+
 ## **📋 ITERATION X IMPLEMENTATION**
 
 **Rule Reference**: `[rule-file.mdc]`
@@ -214,6 +223,7 @@ ALL items must be verified before creating PR:
 - [ ] No regression issues detected
 - [ ] Feature is completely functional and isolated
 - [ ] Documentation updated if needed
+- [ ] Execution plan progress dashboard updated with iteration completion
 ```
 
 ### 5. Session Management Appendix (Required)
@@ -240,7 +250,7 @@ Include comprehensive session recovery procedures:
 7. **Test L3** → `npm run test:all && npm run validate:pre-docker`
 8. **Docker Validation** → `docker-compose up --build -d` + feature validation
 9. **Create PR** → Push branch and create detailed pull request
-10. **Update Progress** → Mark iteration as completed
+10. **Update Progress** → Mark iteration as completed in execution plan dashboard
 
 ### **Quality Gates (4-Level Testing Pyramid)**
 - **Level 1**: Immediate feedback (quality:check, test:run)
