@@ -51,4 +51,4 @@ services:
       redis-server 
       --maxmemory 100mb 
       --maxmemory-policy allkeys-lru
-      --save 900 1 300 10 60 10000 
+      --save 900 1 300 10 60 10000

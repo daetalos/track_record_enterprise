@@ -81,6 +81,12 @@ export interface UserClubsApiResponse {
   message?: string;
 }
 
+export interface ClubSelectionResponse {
+  success: boolean;
+  message?: string;
+  error?: string;
+}
+
 // Club validation schemas (for use with Zod)
 export interface ClubValidationSchema {
   name: string;
