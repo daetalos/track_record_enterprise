@@ -1,4 +1,4 @@
-# User Story 10: Bulk Athlete Upload
+# User Story 07: Bulk Athlete Upload
 
 **Priority**: Medium (Administrative Feature)
 **Epic**: Administrative Tools
@@ -293,11 +293,11 @@ Feature: Bulk Athlete Upload
 - 01_user_authentication.md (authentication system)
 - 02_club_management.md (club context)
 - 03_user_roles_permissions.md (staff permission requirements)
-- 04_basic_data_models.md (Gender model for validation)
-- 05_athlete_management.md (athlete creation logic and validation)
+- 04_athlete_management.md (athlete creation logic, gender model, and validation)
 
 ## Related Stories
 
-- 05_athlete_management.md (extends individual athlete creation)
-- 12_data_export.md (complementary import/export functionality)
+- 04_athlete_management.md (extends individual athlete creation)
+- 06_performance_recording.md (depends on athletes from this story)
+- 08_records_management.md (will use athletes from bulk upload)
 - 14_system_administration.md (administrative tools and features)

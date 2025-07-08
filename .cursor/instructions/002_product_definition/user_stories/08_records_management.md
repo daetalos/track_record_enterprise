@@ -293,10 +293,9 @@ Feature: Records Management
 - 01_user_authentication.md (authentication system)
 - 02_club_management.md (club context)
 - 03_user_roles_permissions.md (permission system)
-- 04_basic_data_models.md (reference models)
-- 05_athlete_management.md (athlete data)
-- 06_discipline_management.md (discipline data)
-- 07_performance_recording.md (performance data and record calculation)
+- 04_athlete_management.md (athlete data and age groups)
+- 05_discipline_management.md (discipline data and seasons)
+- 06_performance_recording.md (performance data and record calculation)
 
 ## Related Stories
 
