@@ -1,6 +1,10 @@
 import { hash } from 'bcryptjs';
 import { prisma } from './db';
 import type { PrismaClient } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from './auth';
+import { getUserClubs, userHasClubAccess } from './db';
+import type { UserClubWithClub } from '@/types/club';
 
 export interface CreateUserInput {
   name: string;
@@ -156,3 +160,86 @@ export async function updateUserProfile(
     return null;
   }
 }
+
+/**
+ * Get the current session with club context
+ */
+export const getSessionWithClub = async () => {
+  return await getServerSession(authOptions);
+};
+
+/**
+ * Get the selected club ID from the current session
+ */
+export const getSelectedClubId = async (): Promise<string | null> => {
+  const session = await getSessionWithClub();
+  return session?.selectedClubId || null;
+};
+
+/**
+ * Get the current user's accessible clubs
+ */
+export const getSessionUserClubs = async (): Promise<UserClubWithClub[]> => {
+  const session = await getSessionWithClub();
+  if (!session?.user?.id) {
+    return [];
+  }
+
+  try {
+    return await getUserClubs(session.user.id);
+  } catch (error) {
+    console.error('Error fetching user clubs:', error);
+    return [];
+  }
+};
+
+/**
+ * Validate that the current user has access to a specific club
+ */
+export const validateSessionClubAccess = async (
+  clubId: string
+): Promise<boolean> => {
+  const session = await getSessionWithClub();
+  if (!session?.user?.id) {
+    return false;
+  }
+
+  try {
+    return await userHasClubAccess(session.user.id, clubId);
+  } catch (error) {
+    console.error('Error validating club access:', error);
+    return false;
+  }
+};
+
+/**
+ * Get the selected club with validation
+ * Returns the club data if user has access, null otherwise
+ */
+export const getValidatedSelectedClub = async () => {
+  const session = await getSessionWithClub();
+  const clubId = session?.selectedClubId;
+
+  if (!clubId || !session?.user?.id) {
+    return null;
+  }
+
+  const hasAccess = await validateSessionClubAccess(clubId);
+  if (!hasAccess) {
+    console.warn(
+      `User ${session.user.id} attempted to access unauthorized club ${clubId}`
+    );
+    return null;
+  }
+
+  const userClubs = await getSessionUserClubs();
+  return userClubs.find(uc => uc.club.id === clubId)?.club || null;
+};
+
+/**
+ * Check if the current session has a valid club context
+ */
+export const hasValidClubContext = async (): Promise<boolean> => {
+  const club = await getValidatedSelectedClub();
+  return !!club;
+};

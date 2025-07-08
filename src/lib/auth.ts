@@ -4,8 +4,9 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { compare } from 'bcryptjs';
 import { prisma } from './db';
 import { env } from './env';
+import { getUserClubs } from './db';
 
-// Extend the default session type to include user id
+// Extend the default session type to include user id and club context
 declare module 'next-auth' {
   interface Session {
     user: {
@@ -14,6 +15,15 @@ declare module 'next-auth' {
       email?: string | null;
       image?: string | null;
     };
+    selectedClubId?: string | null;
+  }
+}
+
+// Extend JWT token to include club context
+declare module 'next-auth/jwt' {
+  interface JWT {
+    id: string;
+    selectedClubId?: string | null;
   }
 }
 
@@ -98,16 +108,38 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.id = user.id;
+
+        // Auto-select club for single club users on initial login
+        try {
+          const userClubs = await getUserClubs(user.id);
+          if (userClubs.length === 1) {
+            token.selectedClubId = userClubs[0].club.id;
+          }
+        } catch (error) {
+          console.error('Error auto-selecting club:', error);
+        }
       }
+
+      // Handle club selection updates via session trigger
+      if (trigger === 'update' && session?.selectedClubId !== undefined) {
+        token.selectedClubId = session.selectedClubId;
+      }
+
       return token;
     },
     async session({ session, token }) {
       if (token?.id) {
         session.user.id = token.id as string;
       }
+
+      // Include selected club ID in session
+      if (token?.selectedClubId !== undefined) {
+        session.selectedClubId = token.selectedClubId;
+      }
+
       return session;
     },
   },
