@@ -1,24 +1,25 @@
 ---
-description: Standardized pattern for creating execution plans that deliver high-quality code in small, tested increments with proper version control
+description: Standardized pattern for creating execution plans that deliver high-quality code through atomic iterations with continuous testing and strict git workflows
 globs: 
 alwaysApply: false
 ---
 
 # Enterprise Execution Plan Pattern
 
-This rule establishes a standardized methodology for creating comprehensive execution plans that ensure high-quality code delivery through incremental development, comprehensive testing, and proper version control workflows.
+This rule establishes a standardized methodology for creating comprehensive execution plans that ensure high-quality code delivery through atomic iterations, continuous testing, and proper version control workflows with immediate feedback loops.
 
 ## Prerequisites
 
 Before creating execution plans, ensure:
-- Project has established Git repository with main branch protection
+- Project has established Git repository with main branch
 - Development environment includes Node.js 20.x+, Git 2.30+, and PowerShell
 - Quality foundations are in place (ESLint, Prettier, testing framework)
 - Team understands conventional commits and feature branch workflows
+- npm scripts are established for testing (test, lint, build, etc.)
 
 ## Core Principle
 
-**ALWAYS break complex development initiatives into incremental phases with specific tasks, comprehensive validation criteria, and git-based quality gates to ensure enterprise-ready code delivery.**
+**ALWAYS break complex development initiatives into atomic iterations that follow strict branch-develop-test-develop-test-release cycles with continuous testing and immediate feedback loops to ensure enterprise-ready code delivery.**
 
 ## Execution Plan Structure Standard
 
@@ -30,20 +31,25 @@ Every execution plan MUST start with a comprehensive progress dashboard:
 ## 📊 **PROGRESS TRACKING DASHBOARD**
 
 ### **Overall Status**
-- **Current Phase**: [ ] Phase 1 | [ ] Phase 2 | [ ] Phase 3 | [ ] Phase 4
-- **Overall Progress**: X% Complete (Y of Z tasks completed)  
+- **Current Iteration**: [ ] Iteration 1 | [ ] Iteration 2 | [ ] Iteration 3 | [ ] Iteration N
+- **Overall Progress**: X% Complete (Y of Z iterations completed)  
 - **Last Session Date**: [Current Date]
 - **Status**: [Current Status Description]
 
-### **Phase Progress Summary**
-| Phase | Tasks | Status | Duration Est. | Dependencies |
-|-------|-------|--------|---------------|--------------|
-| **Phase 1**: [Name] | X tasks | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | X-Y hours | None |
+### **Iteration Progress Summary**
+| Iteration | Feature | Status | Duration Est. | Dependencies |
+|-----------|---------|--------|---------------|--------------|
+| **Iteration 1**: [Name] | Single feature | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 2-4 hours | None |
 
-### **Quick Task Status**
-**Phase 1 - [Name]**
-- [ ] 1.1: [Task Name]
-- [ ] 1.2: [Task Name]
+### **Quick Iteration Status**
+**Iteration 1 - [Feature Name]**
+- [ ] Branch & Pull Latest
+- [ ] Develop (Initial)
+- [ ] Test (Level 1)
+- [ ] Develop (Refine)
+- [ ] Test (Level 2)
+- [ ] Test Release (Level 3)
+- [ ] Create PR & Merge
 
 ### **Session Quick Start**
 ```powershell
@@ -51,7 +57,8 @@ Every execution plan MUST start with a comprehensive progress dashboard:
 Get-Location                    # Verify project directory
 Test-Path package.json          # Confirm in correct project
 git status                      # See current changes
-npm run build                   # Test current state
+git branch                      # Check current branch
+npm run quality:check           # Quick validation
 ```
 ```
 
@@ -73,9 +80,10 @@ Include comprehensive project context:
 - **Success Metrics**: [Measurable outcomes]
 
 ### **Implementation Strategy**
-- **Approach**: Incremental implementation across X phases
-- **Workflow**: Implement → Test → Commit for each task
+- **Approach**: Atomic iterations with continuous testing
+- **Workflow**: Branch → Develop → Test → Develop → Test → Release → PR
 - **Session Support**: Plan designed for multi-session execution
+- **Testing Integration**: Leverages npm scripts for consistent validation
 ```
 
 ### 3. Current State Analysis (Required)
@@ -87,84 +95,125 @@ Provide detailed gap analysis:
 
 ### ✅ **EXISTING STRENGTHS**
 - [List current positive aspects]
+- [Available npm scripts for testing]
 
 ### ❌ **CRITICAL GAPS IDENTIFIED**
 **[Category Name] ([rule-reference.mdc])**
 - [Specific gap description]
 - [Impact assessment]
+- [Testing approach needed]
 ```
 
-### 4. Phase Structure (Required)
+### 4. Iteration Structure (Required)
 
-Each phase MUST follow this standardized format:
+Each iteration MUST follow this standardized format:
 
 ```markdown
-# 🚀 **PHASE X: [PHASE NAME]**
+# 🚀 **ITERATION X: [FEATURE NAME]**
 
 **Status**: [ ] Not Started | [ ] In Progress | [ ] Completed
 
-## **PHASE OVERVIEW**
-[Description of phase purpose and scope]
+## **ITERATION OVERVIEW**
+[Description of single feature/component to implement]
 
-**Duration Estimate**: X-Y hours across multiple sessions
-**Dependencies**: [Previous phase or "None"]
-**Critical Path**: [Yes/No with justification]
+**Duration Estimate**: 2-4 hours in single session
+**Dependencies**: [Previous iteration or "None"]
+**Scope**: Single, atomic, testable feature
 
-## **🌿 GIT WORKFLOW FOR PHASE X**
-**Branch**: `feat/phaseX-description`
-**PR Title**: `feat([scope]): implement Phase X - [description]`
+## **🔄 STRICT ITERATION WORKFLOW**
 
-**Git Commands**:
+### **Step 1: Branch & Pull Latest**
 ```powershell
-# Start Phase X
+# Always start with fresh main
 git checkout main
 git pull origin main
-git checkout -b feat/phaseX-description
-
-# During development - commit after each task completion
-git add .
-git commit -m "[conventional commit message]"
-
-# End of Phase X
-git push -u origin feat/phaseX-description
-# Create PR with detailed description
+git checkout -b feat/iterationX-feature-name
 ```
 
-## **📋 PHASE X TASKS**
+### **Step 2: Develop (Initial)**
+- Implement core feature logic
+- Focus on getting basic functionality working
 
-### **Task X.1: [Task Name]**
+### **Step 3: Test (Level 1 - Immediate Feedback)**
+```powershell
+npm run quality:check  # Lint + format + type check
+npm run test:run       # Quick unit test execution
+```
+
+### **Step 4: Develop (Refine)**
+- Fix issues found in Level 1 testing
+- Improve implementation based on feedback
+
+### **Step 5: Test (Level 2 - Integration Validation)**
+```powershell
+npm run test:coverage  # Unit tests with coverage
+npm run build          # Verify compilation
+```
+
+### **Step 6: Test Release (Level 3 - Full Validation)**
+```powershell
+npm run test:all                # Complete unit + E2E tests
+npm run validate:pre-docker     # Full validation pipeline
+```
+
+### **Step 6.5: Docker Deployment Validation**
+```powershell
+# Deploy to Docker and validate functionality
+docker-compose up --build -d
+docker-compose ps              # Verify all containers are running
+docker-compose logs web --tail=50  # Check for deployment errors
+
+# Validate iteration functionality in containerized environment
+# [Specific validation steps for each iteration's features]
+# Example: Test API endpoints, verify database connectivity, check UI rendering
+
+# Clean up Docker environment
+docker-compose down
+```
+
+### **Step 7: Create PR & Merge (From git-standards.mdc)**
+```powershell
+# Push feature branch
+git push -u origin feat/iterationX-feature-name
+
+# Create PR with detailed description
+gh pr create --title "feat([scope]): [feature description]" --body "[Detailed PR description]"
+
+# After review and approval, update main
+git checkout main
+git pull origin main
+git branch -d feat/iterationX-feature-name
+```
+
+## **📋 ITERATION X IMPLEMENTATION**
+
 **Rule Reference**: `[rule-file.mdc]`
-**Status**: [ ] Not Started | [ ] In Progress | [ ] Completed
-**Dependencies**: [Previous task or "None"]
-
-**Implementation Steps**:
-1. [Specific implementation step]
-2. [Include exact commands when applicable]
 
 **Files to Create/Modify**:
 - `[file-path]` (new/modify)
 
-**Validation Criteria**:
-- [ ] [Specific testable criteria]
-- [ ] [Another validation requirement]
+**Implementation Steps**:
+1. [Specific implementation step with exact commands]
+2. [Another step with validation checkpoints]
 
-**Test Commands**:
-```powershell
-[Specific commands to validate implementation]
-```
+**Regression Protection**:
+- [ ] Existing functionality remains intact
+- [ ] No breaking changes to previous iterations
+- [ ] Integration tests pass
 
-**Commit Message**: `[conventional commit format]`
+**Commit Strategy**:
+- Commit after each major step with conventional commit messages
+- Example: `feat([scope]): implement [specific functionality]`
 
-### **🎯 PHASE X COMPLETION CRITERIA**
-Before proceeding to Phase X+1, verify all items:
-- [ ] [Comprehensive validation checklist]
-- [ ] [Quality gates verified]
-
-**Phase X Final Test**:
-```powershell
-# Full validation sequence
-[Commands to verify phase completion]
-```
+### **🎯 ITERATION X COMPLETION CRITERIA**
+ALL items must be verified before creating PR:
+- [ ] Level 1 tests pass (quality:check, test:run)
+- [ ] Level 2 tests pass (test:coverage, build)
+- [ ] Level 3 tests pass (test:all, validate:pre-docker)
+- [ ] Docker deployment validation passes (containers start, functionality works)
+- [ ] No regression issues detected
+- [ ] Feature is completely functional and isolated
+- [ ] Documentation updated if needed
 ```
 
 ### 5. Session Management Appendix (Required)
@@ -175,104 +224,126 @@ Include comprehensive session recovery procedures:
 ## 📚 **APPENDIX: SESSION MANAGEMENT**
 
 ### **Starting a New Session**
-1. **Context Recovery**: Read progress dashboard
-2. **Git Status Check**: Verify branch and working directory
-3. **Status Check**: Update checkboxes based on actual completion
-4. **Environment Verification**: Run validation commands
-5. **Task Identification**: Find next uncompleted task
+1. **Context Recovery**: Read progress dashboard and identify current iteration
+2. **Git Status Check**: Verify branch and working directory status
+3. **Status Check**: Update iteration checkboxes based on actual completion
+4. **Environment Verification**: Run `npm run quality:check` for quick validation
+5. **Iteration Identification**: Find next uncompleted iteration
 
-### **Session Workflow**
-1. **Plan** → Review task details and validation criteria
-2. **Branch** → Ensure on correct phase feature branch  
-3. **Implement** → Follow implementation steps systematically
-4. **Test** → Run all validation tests
-5. **Commit** → Use conventional commit messages
-6. **Update Progress** → Mark task as completed
+### **Iteration Workflow (Per Session)**
+1. **Branch & Pull** → Start fresh from main: `git checkout main && git pull origin main`
+2. **Create Branch** → `git checkout -b feat/iterationX-feature-name`
+3. **Develop** → Implement initial feature functionality
+4. **Test L1** → `npm run quality:check && npm run test:run`
+5. **Develop** → Refine based on immediate feedback
+6. **Test L2** → `npm run test:coverage && npm run build`
+7. **Test L3** → `npm run test:all && npm run validate:pre-docker`
+8. **Docker Validation** → `docker-compose up --build -d` + feature validation
+9. **Create PR** → Push branch and create detailed pull request
+10. **Update Progress** → Mark iteration as completed
 
-### **Quality Gates**
-Each phase has completion criteria that MUST be met before proceeding.
+### **Quality Gates (4-Level Testing Pyramid)**
+- **Level 1**: Immediate feedback (quality:check, test:run)
+- **Level 2**: Integration validation (test:coverage, build)
+- **Level 3**: Release readiness (test:all, validate:pre-docker)
+- **Level 4**: Docker deployment validation (containerized environment testing)
 
 ### **Emergency Recovery**
-If issues occur:
-1. Check git status and recent commits
-2. Review error logs and test failures
-3. Consult specific rule documentation
-4. Rollback to last known good state if needed
+If issues occur during an iteration:
+1. Check git status: `git status && git log --oneline -5`
+2. Review test failures: Check npm script output logs
+3. Run regression check: `npm run test:all` to verify no breaking changes
+4. Consult specific rule documentation for guidance
+5. Rollback to iteration start if needed: `git checkout main && git branch -D current-branch`
+
+### **Session Continuity Rules**
+- Each iteration should complete in a single session (2-4 hours)
+- If incomplete, document exact stopping point in progress dashboard
+- Always end sessions with a clean git state (committed or stashed)
+- Next session starts with fresh main pull and context recovery
 ```
 
 ## Implementation Guidelines
 
-### Phase Design Rules
-1. **Maximum 4 phases** - Keep execution plans manageable
-2. **2-4 tasks per phase** - Ensure focused, achievable scope
-3. **Clear dependencies** - Each phase builds on previous work
-4. **Testable outcomes** - Every task has validation criteria
+### Iteration Design Rules
+1. **Atomic scope** - Each iteration implements exactly one feature/component
+2. **Single session completion** - 2-4 hours maximum per iteration
+3. **Clear dependencies** - Each iteration builds on previous stable iterations
+4. **Continuous testing** - 3-level testing pyramid throughout development
 
-### Task Structure Rules
-1. **Single responsibility** - Each task accomplishes one clear objective
-2. **Rule reference** - Link to specific .mdc rule for detailed guidance
-3. **Specific validation** - Include exact test commands and success criteria
-4. **Conventional commits** - Use standard commit message format
+### Testing Integration Rules
+1. **npm script consistency** - Always use project's established npm scripts
+2. **Immediate feedback** - Level 1 tests after initial development
+3. **Integration validation** - Level 2 tests after refinements
+4. **Release readiness** - Level 3 tests before PR creation
 
-### Git Integration Rules
-1. **Feature branches** - Each phase uses dedicated feature branch
-2. **Incremental commits** - Commit after each completed task
-3. **Pull requests** - Phase completion requires PR with review
-4. **Branch cleanup** - Remove feature branches after merge
+### Git Workflow Rules
+1. **Fresh main pulls** - Always start iterations from latest main
+2. **Feature branches** - Each iteration uses dedicated feature branch
+3. **Continuous commits** - Commit after each develop-test cycle
+4. **PR completion** - Every iteration ends with PR creation and merge
+5. **Branch cleanup** - Remove feature branches after successful merge
+
+### Regression Protection Rules
+1. **Interface contracts** - Define clear boundaries between iterations
+2. **Backward compatibility** - No iteration should break previous functionality
+3. **Integration testing** - Verify existing features still work after changes
+4. **Rollback readiness** - Each iteration is independently revertible
 
 ## Validation Checklist for Execution Plans
 
 Before finalizing any execution plan, verify:
 
-- [ ] **Progress dashboard** provides complete status tracking
+- [ ] **Progress dashboard** provides complete iteration tracking
 - [ ] **Current state analysis** identifies specific gaps with rule references
-- [ ] **Each phase** has clear objectives, dependencies, and completion criteria
-- [ ] **Each task** includes implementation steps, validation criteria, and test commands
-- [ ] **Git workflow** is properly defined with conventional commits
+- [ ] **Each iteration** has atomic scope, clear objectives, and completion criteria
+- [ ] **Testing pyramid** includes Level 1, 2, and 3 validation using npm scripts
+- [ ] **Git workflow** includes fresh main pulls and PR creation
 - [ ] **Session management** provides context recovery procedures
-- [ ] **Validation commands** are specific and testable
+- [ ] **Regression protection** ensures backward compatibility
+- [ ] **Validation commands** use project's established npm scripts
 
 ## Common Scenarios
 
-### Scenario: Multi-Technology Integration Project
-**Guidance**: Create phases based on technology domains (backend, frontend, deployment)
-**Reasoning**: Enables parallel development and reduces integration complexity
+### Scenario: Multi-Component Feature Development
+**Guidance**: Create atomic iterations per component (API endpoint → service layer → UI component → integration)
+**Reasoning**: Each component can be tested independently and issues are isolated
 
 ### Scenario: Legacy System Modernization  
-**Guidance**: Phase by replacing one subsystem at a time while maintaining functionality
-**Reasoning**: Minimizes risk and ensures continuous system operation
+**Guidance**: One iteration per modernized subsystem while maintaining API contracts
+**Reasoning**: Minimizes risk through small changes and preserves system stability
 
-### Scenario: New Feature Development
-**Guidance**: Phase by infrastructure → core logic → UI → integration → deployment
-**Reasoning**: Builds solid foundation before user-facing features
+### Scenario: New Feature with Multiple Parts
+**Guidance**: Break into atomic iterations: data model → API → business logic → UI → tests
+**Reasoning**: Each iteration builds incrementally with immediate testing feedback
 
 ## Examples
 
 ✅ **Recommended Execution Plan Structure:**
 ```markdown
-# Project Modernization Plan
-## Progress Dashboard (with checkboxes and session recovery)
-## Plan Overview (current → target state)
-## Current State Analysis (strengths vs gaps)
-## Phase 1: Foundation (infrastructure, quality tools)
-## Phase 2: Core Features (business logic, data layer)  
-## Phase 3: User Interface (components, styling)
-## Phase 4: Production Ready (deployment, monitoring)
+# Feature Development Plan
+## Progress Dashboard (with iteration checkboxes and session recovery)
+## Plan Overview (current → target state with npm script integration)
+## Current State Analysis (strengths vs gaps with testing approach)
+## Iteration 1: Data Model (single database table/schema)
+## Iteration 2: API Endpoint (single route with validation)  
+## Iteration 3: Business Logic (service layer for feature)
+## Iteration 4: UI Component (single reusable component)
+## Iteration 5: Integration (connect all parts with tests)
 ## Session Management Appendix
 ```
 
 ❌ **Avoid This Structure:**
 ```markdown
-# Incomplete Plan
-- Do authentication
-- Add database  
-- Make it look good
-- Deploy somewhere
+# Poor Plan
+- Phase 1: Build everything for authentication (too large)
+- Phase 2: Add all database stuff (no testing until end)
+- Phase 3: Make UI and connect (breaking changes likely)
 ```
 
 ---
 
-**Note**: This pattern ensures systematic delivery of enterprise-quality code through incremental development, comprehensive testing, and proper version control workflows while maintaining session continuity across development cycles.
+**Note**: This pattern ensures systematic delivery of enterprise-quality code through atomic iterations, continuous testing with 3-level validation pyramid, and strict git workflows with immediate feedback loops while maintaining session continuity across development cycles.
 ```
 
 I've created a comprehensive execution plan pattern that establishes a standardized methodology for complex development projects. Here are the key principles extracted from the enterprise modernization master plan:
