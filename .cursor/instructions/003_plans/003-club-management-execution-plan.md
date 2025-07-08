@@ -6,20 +6,22 @@
 
 ### **Overall Status**
 
-- **Current Iteration**: [x] Iteration 1 | [ ] Iteration 2 | [ ] Iteration 3 | [ ] Iteration 4 | [ ] Iteration 5
-- **Overall Progress**: 20% Complete (1 of 5 iterations completed)
+- **Current Iteration**: [x] Iteration 1 | [ ] Iteration 2 | [ ] Iteration 3 | [ ] Iteration 4 | [ ] Iteration 5 | [ ] Iteration 6
+- **Overall Progress**: 17% Complete (1 of 6 iterations completed)
 - **Last Session Date**: January 2025
 - **Status**: Iteration 1 completed successfully, ready for Iteration 2
+- **Total Estimated Time**: ~3 hours (down from 12-16 hours with simplified approach)
 
 ### **Iteration Progress Summary**
 
-| Iteration                         | Feature                 | Status                                                | Duration Est. | Dependencies |
-| --------------------------------- | ----------------------- | ----------------------------------------------------- | ------------- | ------------ |
-| **Iteration 1**: Database Schema  | Club & UserClub models  | [x] Not Started<br/>[x] In Progress<br/>[x] Completed | 2-3 hours     | None         |
-| **Iteration 2**: State Management | Zustand club context    | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 2-3 hours     | Iteration 1  |
-| **Iteration 3**: API Endpoints    | Club selection APIs     | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 2-3 hours     | Iteration 2  |
-| **Iteration 4**: UI Components    | Club selector interface | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 2-3 hours     | Iteration 3  |
-| **Iteration 5**: Data Isolation   | Middleware integration  | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 3-4 hours     | Iteration 4  |
+| Iteration                          | Feature                    | Status                                                | Duration Est. | Dependencies |
+| ---------------------------------- | -------------------------- | ----------------------------------------------------- | ------------- | ------------ |
+| **Iteration 1**: Database Schema   | Club & UserClub models     | [x] Not Started<br/>[x] In Progress<br/>[x] Completed | ✅ Complete   | None         |
+| **Iteration 2**: Session Extension | NextAuth club context      | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 30 minutes    | Iteration 1  |
+| **Iteration 3**: API Endpoints     | Simple club selection APIs | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 45 minutes    | Iteration 2  |
+| **Iteration 4**: Club Context      | Lightweight React context  | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 30 minutes    | Iteration 3  |
+| **Iteration 5**: UI Components     | Basic club selector        | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 45 minutes    | Iteration 4  |
+| **Iteration 6**: Data Isolation    | Middleware integration     | [ ] Not Started<br/>[ ] In Progress<br/>[ ] Completed | 30 minutes    | Iteration 5  |
 
 ### **Quick Iteration Status**
 
@@ -34,7 +36,7 @@
 - [x] Docker Deployment Validation
 - [x] Create PR & Merge
 
-**Iteration 2 - Club Context State Management** (NEXT)
+**Iteration 2 - NextAuth Session Extension** (NEXT)
 
 - [ ] Branch & Pull Latest
 - [ ] Develop (Initial)
@@ -101,11 +103,11 @@ npm run quality:check           # Quick validation
 - ✅ UserClub relationship for multi-club access control added
 - ✅ Club context validation in database layer established
 
-**State Management (state-zustand-management.mdc)**
+**Session Management (NextAuth Extension)**
 
-- No Zustand installed for client-side state management
-- No club context store implementation
-- No session persistence for selected club context
+- No club context in NextAuth session
+- No server-side persistence for selected club
+- No session-based club filtering
 
 **API Layer (typescript-nextjs-standards.mdc)**
 
@@ -276,17 +278,17 @@ ALL items must be verified before creating PR:
 
 ---
 
-# 🚀 **ITERATION 2: CLUB CONTEXT STATE MANAGEMENT**
+# 🚀 **ITERATION 2: NEXTAUTH SESSION EXTENSION**
 
 **Status**: [ ] Not Started | [ ] In Progress | [ ] Completed
 
 ## **ITERATION OVERVIEW**
 
-Implement Zustand-based club context state management with session persistence to handle club selection and switching functionality.
+Extend NextAuth session to include selectedClubId for server-side club context persistence, eliminating need for complex client-side state management.
 
-**Duration Estimate**: 2-3 hours in single session
+**Duration Estimate**: 30 minutes in single session
 **Dependencies**: Iteration 1 (Database Schema)
-**Scope**: State management, session handling, and club context provider
+**Scope**: Session extension, type definitions, and server-side persistence
 
 ## **🔄 STRICT ITERATION WORKFLOW**
 
@@ -296,14 +298,14 @@ Implement Zustand-based club context state management with session persistence t
 # Always start with fresh main
 git checkout main
 git pull origin main
-git checkout -b feat/iteration2-club-context-state
+git checkout -b feat/iteration2-nextauth-session-extension
 ```
 
 ### **Step 2: Develop (Initial)**
 
-- Install Zustand: `npm install zustand`
-- Create club context Zustand store
-- Implement session persistence for club selection
+- Extend NextAuth session type to include selectedClubId
+- Update auth.ts session callback to handle club context
+- Add TypeScript declarations for extended session
 
 ### **Step 3: Test (Level 1 - Immediate Feedback)**
 
@@ -314,9 +316,9 @@ npm run test:run       # Quick unit test execution
 
 ### **Step 4: Develop (Refine)**
 
-- Create club context provider component
-- Add React hooks for club context access
-- Implement club switching logic with validation
+- Test session extension with existing auth flow
+- Verify TypeScript compilation with new session types
+- Add session helper functions for club context access
 
 ### **Step 5: Test (Level 2 - Integration Validation)**
 
@@ -379,37 +381,33 @@ git branch -d feat/iteration2-club-context-state
 
 ## **📋 ITERATION 2 IMPLEMENTATION**
 
-**Rule Reference**: `state-zustand-management.mdc`
+**Rule Reference**: `NextAuth session extension patterns`
 
 **Files to Create/Modify**:
 
-- `package.json` (modify - add Zustand dependency)
-- `src/stores/clubStore.ts` (new - Zustand club context store)
-- `src/context/ClubContext.tsx` (new - React context provider)
-- `src/hooks/useClub.ts` (new - custom hooks for club operations)
-- `src/types/club.ts` (modify - add state management types)
+- `src/lib/auth.ts` (modify - extend session interface and callback)
+- `src/types/club.ts` (modify - add session-related types)
 
 **Implementation Steps**:
 
-1. Install Zustand state management library
-2. Create clubStore with selectedClub, userClubs, and switching functions
-3. Implement localStorage persistence for selected club
-4. Create ClubContext provider component
-5. Add useClub hooks for accessing club state
-6. Integrate session-based club persistence
-7. Add TypeScript interfaces for club state
+1. Extend NextAuth Session interface to include selectedClubId
+2. Update session callback to persist club context
+3. Add TypeScript declarations for extended session
+4. Create helper functions for session club access
+5. Test session persistence across page loads
+6. Verify compatibility with existing auth flow
 
 **Regression Protection**:
 
 - [ ] Existing authentication flow remains intact
-- [ ] No breaking changes to current state management
-- [ ] Club context gracefully handles missing data
+- [ ] No breaking changes to NextAuth configuration
+- [ ] Session extension gracefully handles missing club data
 
 **Commit Strategy**:
 
-- Commit after Zustand setup: `feat(state): add Zustand club context store`
-- Commit after provider: `feat(context): create ClubContext provider component`
-- Commit after hooks: `feat(hooks): add useClub hooks for state access`
+- Commit after session extension: `feat(auth): extend NextAuth session with club context`
+- Commit after TypeScript types: `feat(types): add session club context types`
+- Commit after helper functions: `feat(auth): add club session helper functions`
 
 ### **🎯 ITERATION 2 COMPLETION CRITERIA**
 
@@ -418,26 +416,26 @@ ALL items must be verified before creating PR:
 - [ ] Level 1 tests pass (quality:check, test:run)
 - [ ] Level 2 tests pass (test:coverage, build)
 - [ ] Level 3 tests pass (test:all, validate:pre-docker)
-- [ ] Docker deployment validation passes (application loads, no SSR/hydration issues)
-- [ ] Zustand store functions correctly with TypeScript
-- [ ] Session persistence saves and restores club selection
-- [ ] Club context provider integrates without errors
-- [ ] Hooks provide proper club state access
+- [ ] Docker deployment validation passes (auth system works with extended session)
+- [ ] Extended session types compile correctly with TypeScript
+- [ ] Session persistence maintains club context across page loads
+- [ ] NextAuth callbacks handle club context without errors
+- [ ] Helper functions provide proper session club access
 - [ ] Execution plan progress dashboard updated with Iteration 2 completion
 
 ---
 
-# 🚀 **ITERATION 3: CLUB API ENDPOINTS & SERVICES**
+# 🚀 **ITERATION 3: SIMPLE CLUB API ENDPOINTS**
 
 **Status**: [ ] Not Started | [ ] In Progress | [ ] Completed
 
 ## **ITERATION OVERVIEW**
 
-Implement API endpoints for club operations including fetching user clubs, setting club context, and validating club access permissions.
+Implement basic API endpoints for club operations: fetching user clubs and setting club context in session. Focus on simplicity and leveraging existing database functions.
 
-**Duration Estimate**: 2-3 hours in single session
-**Dependencies**: Iteration 2 (State Management)
-**Scope**: API routes, validation, and server-side club operations
+**Duration Estimate**: 45 minutes in single session
+**Dependencies**: Iteration 2 (Session Extension)
+**Scope**: Two simple API routes with session management
 
 ## **🔄 STRICT ITERATION WORKFLOW**
 
@@ -447,14 +445,14 @@ Implement API endpoints for club operations including fetching user clubs, setti
 # Always start with fresh main
 git checkout main
 git pull origin main
-git checkout -b feat/iteration3-club-api-endpoints
+git checkout -b feat/iteration3-simple-club-apis
 ```
 
 ### **Step 2: Develop (Initial)**
 
-- Create API route for fetching user's clubs
-- Implement club selection validation endpoint
-- Add server-side club access verification
+- Create GET /api/clubs route using existing getUserClubs function
+- Create POST /api/clubs/select route for session updates
+- Add basic request validation
 
 ### **Step 3: Test (Level 1 - Immediate Feedback)**
 
@@ -465,9 +463,9 @@ npm run test:run       # Quick unit test execution
 
 ### **Step 4: Develop (Refine)**
 
-- Add API route for setting club context
-- Implement proper error handling and validation
-- Create service functions for club operations
+- Add proper error handling and HTTP status codes
+- Implement session integration for club persistence
+- Test API endpoints with existing auth system
 
 ### **Step 5: Test (Level 2 - Integration Validation)**
 
@@ -577,17 +575,17 @@ ALL items must be verified before creating PR:
 
 ---
 
-# 🚀 **ITERATION 4: CLUB SELECTOR UI COMPONENT**
+# 🚀 **ITERATION 4: LIGHTWEIGHT CLUB CONTEXT**
 
 **Status**: [ ] Not Started | [ ] In Progress | [ ] Completed
 
 ## **ITERATION OVERVIEW**
 
-Implement club selector UI component with dropdown interface, club switching functionality, and integration with the navigation system.
+Create a simple React context for club state management following the existing ThemeContext pattern. Provides UI state synchronization without complex state management.
 
-**Duration Estimate**: 2-3 hours in single session
+**Duration Estimate**: 30 minutes in single session
 **Dependencies**: Iteration 3 (API Endpoints)
-**Scope**: UI components, user interactions, and visual feedback
+**Scope**: Simple React context, hooks, and UI state management
 
 ## **🔄 STRICT ITERATION WORKFLOW**
 
@@ -597,7 +595,156 @@ Implement club selector UI component with dropdown interface, club switching fun
 # Always start with fresh main
 git checkout main
 git pull origin main
-git checkout -b feat/iteration4-club-selector-ui
+git checkout -b feat/iteration4-lightweight-club-context
+```
+
+### **Step 2: Develop (Initial)**
+
+- Create ClubContext following ThemeContext pattern
+- Add useClub hook for context access
+- Implement basic club state management
+
+### **Step 3: Test (Level 1 - Immediate Feedback)**
+
+```powershell
+npm run quality:check  # Lint + format + type check
+npm run test:run       # Quick unit test execution
+```
+
+### **Step 4: Develop (Refine)**
+
+- Integrate with API endpoints from Iteration 3
+- Add error handling and loading states
+- Test context provider integration
+
+### **Step 5: Test (Level 2 - Integration Validation)**
+
+```powershell
+npm run test:coverage  # Unit tests with coverage
+npm run build          # Verify compilation
+```
+
+### **Step 6: Test Release (Level 3 - Full Validation)**
+
+```powershell
+npm run test:all                # Complete unit + E2E tests
+npm run validate:pre-docker     # Full validation pipeline
+```
+
+### **Step 6.5: Docker Deployment Validation**
+
+```powershell
+# Deploy to Docker and validate context functionality
+docker-compose up --build -d
+docker-compose ps              # Verify all containers are running
+docker-compose logs web --tail=50  # Check for deployment errors
+
+# Validate club context in containerized environment
+curl http://localhost:3000 -I  # Test application loads
+# Manual validation: Open browser, check context provides club state
+# Manual validation: Verify no hydration issues with context
+
+# Check for React context issues
+docker-compose logs web | grep -i "context\|provider\|hydration" | head -10
+
+# Clean up Docker environment
+docker-compose down
+```
+
+### **Step 7: Create PR & Merge**
+
+```powershell
+# Push feature branch
+git push -u origin feat/iteration4-lightweight-club-context
+
+# Create PR with detailed description
+gh pr create --title "feat(context): implement lightweight club context following ThemeContext pattern" --body "Adds simple React context for club state management, following existing patterns in codebase"
+
+# After review and approval, update main
+git checkout main
+git pull origin main
+git branch -d feat/iteration4-lightweight-club-context
+```
+
+### **Step 8: Update Progress Tracking**
+
+```powershell
+# Update execution plan with Iteration 4 completion
+# Mark Iteration 4 as completed in progress dashboard
+# Update overall progress from 50% to 67% (4 of 6 iterations)
+# Update current iteration status to show Iteration 5 as next
+# Update last session date and status
+```
+
+## **📋 ITERATION 4 IMPLEMENTATION**
+
+**Rule Reference**: Existing `ThemeContext.tsx` and `SidebarContext.tsx` patterns
+
+**Files to Create/Modify**:
+
+- `src/context/ClubContext.tsx` (new - club context provider)
+- `src/hooks/useClub.ts` (new - club context hook)
+- `src/types/club.ts` (modify - add context types)
+
+**Implementation Steps**:
+
+1. Create ClubContext following existing context patterns
+2. Add ClubProvider component with state management
+3. Implement useClub hook for context access
+4. Add loading states and error handling
+5. Integrate with API endpoints for data fetching
+6. Add TypeScript interfaces for context types
+
+**Regression Protection**:
+
+- [ ] Existing context providers remain functional
+- [ ] No breaking changes to current React patterns
+- [ ] Context gracefully handles missing data
+
+**Commit Strategy**:
+
+- Commit after context creation: `feat(context): create ClubContext following ThemeContext pattern`
+- Commit after hook implementation: `feat(hooks): add useClub hook for context access`
+- Commit after integration: `feat(context): integrate club context with API endpoints`
+
+### **🎯 ITERATION 4 COMPLETION CRITERIA**
+
+ALL items must be verified before creating PR:
+
+- [ ] Level 1 tests pass (quality:check, test:run)
+- [ ] Level 2 tests pass (test:coverage, build)
+- [ ] Level 3 tests pass (test:all, validate:pre-docker)
+- [ ] Docker deployment validation passes (context works without hydration issues)
+- [ ] ClubContext follows existing ThemeContext patterns
+- [ ] useClub hook provides proper state access
+- [ ] Context integrates with API endpoints correctly
+- [ ] Loading states and error handling work properly
+- [ ] No breaking changes to existing context providers
+- [ ] Execution plan progress dashboard updated with Iteration 4 completion
+
+---
+
+# 🚀 **ITERATION 5: BASIC CLUB SELECTOR UI**
+
+**Status**: [ ] Not Started | [ ] In Progress | [ ] Completed
+
+## **ITERATION OVERVIEW**
+
+Create a simple club selector dropdown component integrated into navigation header. Focus on basic functionality with clean UI following existing design patterns.
+
+**Duration Estimate**: 45 minutes in single session
+**Dependencies**: Iteration 4 (Club Context)
+**Scope**: Single dropdown component with basic club switching
+
+## **🔄 STRICT ITERATION WORKFLOW**
+
+### **Step 1: Branch & Pull Latest**
+
+```powershell
+# Always start with fresh main
+git checkout main
+git pull origin main
+git checkout -b feat/iteration5-basic-club-selector
 ```
 
 ### **Step 2: Develop (Initial)**
@@ -730,7 +877,7 @@ ALL items must be verified before creating PR:
 
 ---
 
-# 🚀 **ITERATION 5: DATA ISOLATION MIDDLEWARE & INTEGRATION**
+# 🚀 **ITERATION 6: DATA ISOLATION MIDDLEWARE**
 
 **Status**: [ ] Not Started | [ ] In Progress | [ ] Completed
 
@@ -738,9 +885,9 @@ ALL items must be verified before creating PR:
 
 Implement data isolation middleware to enforce club-based filtering across all API endpoints and integrate club context validation throughout the application.
 
-**Duration Estimate**: 3-4 hours in single session
-**Dependencies**: Iteration 4 (UI Components)
-**Scope**: Middleware, data filtering, security validation, and end-to-end integration
+**Duration Estimate**: 30 minutes in single session
+**Dependencies**: Iteration 5 (UI Components)
+**Scope**: Simple middleware extension for automatic club-based data filtering
 
 ## **🔄 STRICT ITERATION WORKFLOW**
 
@@ -750,7 +897,7 @@ Implement data isolation middleware to enforce club-based filtering across all A
 # Always start with fresh main
 git checkout main
 git pull origin main
-git checkout -b feat/iteration5-data-isolation-middleware
+git checkout -b feat/iteration6-data-isolation-middleware
 ```
 
 ### **Step 2: Develop (Initial)**

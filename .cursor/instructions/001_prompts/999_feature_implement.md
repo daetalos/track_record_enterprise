@@ -1,3 +1,1 @@
-@002-user-authentication-implementation-plan.md you are a senior software engineer tasked with implementing this plan that satisfies this user story - @01_user_authentication.md .
-
-Use sequential thinking to organise your thoughts and actions.
+@003-club-management-execution-plan.md I want you to read this execution plan and use sequential thinking to organise your thoughts on how you will approach impleemnting it's iterations in order to achieve this user story @02_club_management.md
