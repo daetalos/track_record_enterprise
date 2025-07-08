@@ -133,20 +133,24 @@ git checkout -b feat/iterationX-feature-name
 ### **Step 2: Develop (Initial)**
 - Implement core feature logic
 - Focus on getting basic functionality working
+- **DO NOT write tests yet** - focus on implementation first
 
 ### **Step 3: Test (Level 1 - Immediate Feedback)**
 ```powershell
 npm run quality:check  # Lint + format + type check
-npm run test:run       # Quick unit test execution
+npm run test:run       # Quick unit test execution (existing tests only)
 ```
 
 ### **Step 4: Develop (Refine)**
 - Fix issues found in Level 1 testing
 - Improve implementation based on feedback
+- **Write comprehensive unit tests** for the new functionality
+- Follow existing test patterns in the project (Vitest, React Testing Library)
+- Achieve 100% test coverage for new code
 
 ### **Step 5: Test (Level 2 - Integration Validation)**
 ```powershell
-npm run test:coverage  # Unit tests with coverage
+npm run test:coverage  # Unit tests with coverage (including new tests)
 npm run build          # Verify compilation
 ```
 
@@ -205,22 +209,33 @@ git branch -d feat/iterationX-feature-name
 1. [Specific implementation step with exact commands]
 2. [Another step with validation checkpoints]
 
+**Testing Strategy**:
+- **Step 4 Focus**: Write comprehensive unit tests after initial implementation
+- **Test Patterns**: Follow existing project test structure (Vitest, React Testing Library)
+- **Coverage Goal**: Achieve 100% test coverage for new functionality
+- **Test Files**: Place tests in `__tests__` directories alongside source files
+- **Mocking**: Use Vitest mocking patterns consistent with existing tests
+
 **Regression Protection**:
 - [ ] Existing functionality remains intact
 - [ ] No breaking changes to previous iterations
-- [ ] Integration tests pass
+- [ ] All existing tests continue to pass
+- [ ] New functionality has comprehensive test coverage
 
 **Commit Strategy**:
-- Commit after each major step with conventional commit messages
-- Example: `feat([scope]): implement [specific functionality]`
+- Commit after initial implementation: `feat([scope]): implement [core functionality]`
+- Commit after tests: `test([scope]): add comprehensive unit tests for [functionality]`
+- Commit after refinements: `feat([scope]): refine [functionality] based on test feedback`
 
 ### **🎯 ITERATION X COMPLETION CRITERIA**
 ALL items must be verified before creating PR:
-- [ ] Level 1 tests pass (quality:check, test:run)
-- [ ] Level 2 tests pass (test:coverage, build)
-- [ ] Level 3 tests pass (test:all, validate:pre-docker)
+- [ ] Level 1 tests pass (quality:check, test:run) 
+- [ ] **New unit tests written** with 100% coverage for new functionality
+- [ ] Level 2 tests pass (test:coverage, build) including new tests
+- [ ] Level 3 tests pass (test:all, validate:pre-docker) 
 - [ ] Docker deployment validation passes (containers start, functionality works)
-- [ ] No regression issues detected
+- [ ] **All existing tests continue to pass** (no regression)
+- [ ] **Test files follow project patterns** (Vitest, proper mocking)
 - [ ] Feature is completely functional and isolated
 - [ ] Documentation updated if needed
 - [ ] Execution plan progress dashboard updated with iteration completion
@@ -283,9 +298,12 @@ If issues occur during an iteration:
 
 ### Testing Integration Rules
 1. **npm script consistency** - Always use project's established npm scripts
-2. **Immediate feedback** - Level 1 tests after initial development
-3. **Integration validation** - Level 2 tests after refinements
-4. **Release readiness** - Level 3 tests before PR creation
+2. **Immediate feedback** - Level 1 tests after initial development (existing tests only)
+3. **Test-driven refinement** - Write comprehensive unit tests during Step 4 refinement
+4. **Integration validation** - Level 2 tests after refinements (including new tests)
+5. **Release readiness** - Level 3 tests before PR creation
+6. **Coverage requirement** - Achieve 100% test coverage for new functionality
+7. **Pattern consistency** - Follow existing test patterns (Vitest, React Testing Library)
 
 ### Git Workflow Rules
 1. **Fresh main pulls** - Always start iterations from latest main
@@ -300,6 +318,15 @@ If issues occur during an iteration:
 3. **Integration testing** - Verify existing features still work after changes
 4. **Rollback readiness** - Each iteration is independently revertible
 
+### Test Writing Rules (Step 4 Focus)
+1. **Implementation first** - Write core functionality before tests (Steps 2-3)
+2. **Comprehensive testing** - Write tests during Step 4 refinement phase
+3. **Pattern consistency** - Follow existing test file structure and naming
+4. **Coverage requirement** - Achieve 100% coverage for new functionality
+5. **Mocking strategy** - Use Vitest mocking patterns from existing tests
+6. **Test placement** - Place tests in `__tests__` directories alongside source
+7. **Test types** - Focus on unit tests; integration tests handled by E2E suite
+
 ## Validation Checklist for Execution Plans
 
 Before finalizing any execution plan, verify:
@@ -308,6 +335,9 @@ Before finalizing any execution plan, verify:
 - [ ] **Current state analysis** identifies specific gaps with rule references
 - [ ] **Each iteration** has atomic scope, clear objectives, and completion criteria
 - [ ] **Testing pyramid** includes Level 1, 2, and 3 validation using npm scripts
+- [ ] **Test writing strategy** clearly specifies Step 4 as testing phase
+- [ ] **Coverage requirements** mandate 100% coverage for new functionality
+- [ ] **Test patterns** require following existing project structure (Vitest, etc.)
 - [ ] **Git workflow** includes fresh main pulls and PR creation
 - [ ] **Session management** provides context recovery procedures
 - [ ] **Regression protection** ensures backward compatibility
