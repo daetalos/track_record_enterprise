@@ -246,4 +246,128 @@ export const getClubMemberCount = async (clubId: string): Promise<number> => {
   });
 };
 
+// === CLUB FILTERING UTILITIES ===
+
+/**
+ * Create a Prisma where clause that filters data by club context
+ * This utility ensures all queries respect club-based data isolation
+ */
+export const withClubFilter = (clubId: string | null) => {
+  if (!clubId) {
+    // If no club context, return a filter that matches nothing
+    return { id: 'never-matches' };
+  }
+  return { clubId };
+};
+
+/**
+ * Validate that a user has access to perform operations on a specific club
+ * Used in API routes to ensure data isolation
+ */
+export const validateUserClubAccess = async (
+  userId: string,
+  clubId: string,
+  requiredRole?: ClubRole
+): Promise<{ hasAccess: boolean; userRole?: ClubRole; error?: string }> => {
+  try {
+    const userClub = await prisma.userClub.findUnique({
+      where: {
+        userId_clubId: {
+          userId,
+          clubId,
+        },
+        isActive: true,
+      },
+      include: {
+        club: {
+          select: {
+            isActive: true,
+          },
+        },
+      },
+    });
+
+    if (!userClub) {
+      return {
+        hasAccess: false,
+        error: 'User does not have access to this club',
+      };
+    }
+
+    if (!userClub.club.isActive) {
+      return {
+        hasAccess: false,
+        error: 'Club is not active',
+      };
+    }
+
+    // Check role requirements if specified
+    if (requiredRole) {
+      const roleHierarchy: Record<ClubRole, number> = {
+        MEMBER: 1,
+        ADMIN: 2,
+        OWNER: 3,
+      };
+
+      const userRoleLevel = roleHierarchy[userClub.role];
+      const requiredRoleLevel = roleHierarchy[requiredRole];
+
+      if (userRoleLevel < requiredRoleLevel) {
+        return {
+          hasAccess: false,
+          userRole: userClub.role,
+          error: `Insufficient permissions. Required: ${requiredRole}, User has: ${userClub.role}`,
+        };
+      }
+    }
+
+    return {
+      hasAccess: true,
+      userRole: userClub.role,
+    };
+  } catch (error) {
+    console.error('Error validating user club access:', error);
+    return {
+      hasAccess: false,
+      error: 'Failed to validate club access',
+    };
+  }
+};
+
+/**
+ * Get club context from headers (set by middleware)
+ * Used in API routes to get the current club context
+ */
+export const getClubFromHeaders = (headers: Headers): string | null => {
+  return headers.get('x-club-id') || null;
+};
+
+/**
+ * Get user ID from headers (set by middleware)
+ * Used in API routes to get the current user context
+ */
+export const getUserFromHeaders = (headers: Headers): string | null => {
+  return headers.get('x-user-id') || null;
+};
+
+/**
+ * Club-aware database query wrapper
+ * Automatically applies club filtering to queries
+ */
+export const clubAwareQuery = async <T>(
+  clubId: string | null,
+  queryFn: (filter: { clubId: string }) => Promise<T>
+): Promise<T | null> => {
+  if (!clubId) {
+    return null;
+  }
+
+  try {
+    return await queryFn({ clubId });
+  } catch (error) {
+    console.error('Club-aware query failed:', error);
+    throw error;
+  }
+};
+
 export default prisma;
