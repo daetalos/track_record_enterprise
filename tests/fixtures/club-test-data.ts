@@ -1,6 +1,6 @@
 /**
  * Test Fixtures for Club Management BDD Scenarios
- * 
+ *
  * Provides structured test data and setup utilities for club management testing
  */
 
@@ -35,25 +35,25 @@ export const clubTestData: ClubTestData = {
     lastName: 'Athlete',
     club: {
       name: 'Metro Runners',
-      description: 'Community-focused running club for all skill levels'
-    }
+      description: 'Community-focused running club for all skill levels',
+    },
   },
 
   multiClubUser: {
-    email: 'admin@trackrecord.dev', 
+    email: 'admin@trackrecord.dev',
     password: 'password123',
     firstName: 'Track',
     lastName: 'Admin',
     clubs: [
       {
         name: 'Elite Athletics Club',
-        description: 'Premier track and field club for competitive athletes'
+        description: 'Premier track and field club for competitive athletes',
       },
       {
         name: 'Metro Runners',
-        description: 'Community-focused running club for all skill levels'
-      }
-    ]
+        description: 'Community-focused running club for all skill levels',
+      },
+    ],
   },
 
   unauthorizedUser: {
@@ -63,28 +63,28 @@ export const clubTestData: ClubTestData = {
     lastName: 'Runner',
     club: {
       name: 'Peak Performance Academy',
-      description: 'High-performance training facility'
-    }
+      description: 'High-performance training facility',
+    },
   },
 
   testClubs: [
     {
       name: 'Elite Athletics Club',
-      description: 'Premier track and field club for competitive athletes'
+      description: 'Premier track and field club for competitive athletes',
     },
     {
-      name: 'Metro Runners', 
-      description: 'Community-focused running club for all skill levels'
+      name: 'Metro Runners',
+      description: 'Community-focused running club for all skill levels',
     },
     {
       name: 'Peak Performance Academy',
-      description: 'High-performance training facility'
+      description: 'High-performance training facility',
     },
     {
       name: 'University Track Team',
-      description: 'Collegiate track and field program'
-    }
-  ]
+      description: 'Collegiate track and field program',
+    },
+  ],
 };
 
 /**
@@ -103,28 +103,28 @@ export const testAthletes: TestAthlete[] = [
     firstName: 'John',
     lastName: 'Elite',
     gender: 'M',
-    clubName: 'Elite Athletics Club'
+    clubName: 'Elite Athletics Club',
   },
   {
     firstName: 'Jane',
     lastName: 'Elite',
-    gender: 'F', 
-    clubName: 'Elite Athletics Club'
+    gender: 'F',
+    clubName: 'Elite Athletics Club',
   },
-  
+
   // Metro Runners athletes
   {
     firstName: 'Mike',
     lastName: 'Runner',
     gender: 'M',
-    clubName: 'Metro Runners'
+    clubName: 'Metro Runners',
   },
   {
     firstName: 'Anna',
     lastName: 'Runner',
     gender: 'F',
-    clubName: 'Metro Runners'
-  }
+    clubName: 'Metro Runners',
+  },
 ];
 
 /**
@@ -141,11 +141,11 @@ export class ClubTestDataSeeder {
           'Content-Type': 'application/json',
         },
       });
-      
+
       if (!response.ok) {
         throw new Error(`Seeding failed: ${response.statusText}`);
       }
-      
+
       const result = await response.json();
       console.log('✅ Test data seeded successfully:', result.message);
     } catch (error) {
@@ -163,12 +163,16 @@ export class ClubTestDataSeeder {
   static async createTestUser(userData: TestUser): Promise<void> {
     // Test users will be created via the registration flow in tests
     // This maintains consistency with the actual user registration process
-    console.log(`ℹ️ Test user ${userData.email} will be created via registration flow`);
+    console.log(
+      `ℹ️ Test user ${userData.email} will be created via registration flow`
+    );
   }
 
   static async createTestClub(clubData: TestClub): Promise<void> {
     // Test clubs are created via the existing seeding process
     // This ensures consistency with the development environment
-    console.log(`ℹ️ Test club ${clubData.name} will be created via seeding process`);
+    console.log(
+      `ℹ️ Test club ${clubData.name} will be created via seeding process`
+    );
   }
-} 
+}

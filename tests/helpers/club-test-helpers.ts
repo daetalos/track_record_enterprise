@@ -3,13 +3,12 @@ import type { TestUser } from '../fixtures/club-test-data';
 
 /**
  * Reusable Test Helper Functions for Club Management BDD Scenarios
- * 
- * Provides common functionality for authentication, navigation, 
+ *
+ * Provides common functionality for authentication, navigation,
  * and club management operations in tests
  */
 
 export class ClubTestHelpers {
-  
   /**
    * Sign up a new user account
    * Uses the existing registration flow patterns from auth-registration.spec.ts
@@ -19,7 +18,9 @@ export class ClubTestHelpers {
     await this.waitForPageReady(page);
 
     // Fill out the registration form
-    await page.getByPlaceholder('Enter your first name').fill(userData.firstName);
+    await page
+      .getByPlaceholder('Enter your first name')
+      .fill(userData.firstName);
     await page.getByPlaceholder('Enter your last name').fill(userData.lastName);
     await page.getByPlaceholder('Enter your email').fill(userData.email);
     await page.getByPlaceholder('Enter your password').fill(userData.password);
@@ -39,7 +40,11 @@ export class ClubTestHelpers {
    * Sign in an existing user
    * Uses the authentication system to log in
    */
-  static async signInUser(page: Page, email: string, password: string): Promise<void> {
+  static async signInUser(
+    page: Page,
+    email: string,
+    password: string
+  ): Promise<void> {
     await page.goto('/signin');
     await this.waitForPageReady(page);
 
@@ -61,7 +66,7 @@ export class ClubTestHelpers {
   static async waitForAuthentication(page: Page): Promise<void> {
     // Wait for club context to be loaded (may appear in header/navigation)
     await this.waitForPageReady(page);
-    
+
     // Additional wait for club context to be established
     await page.waitForTimeout(2000);
   }
@@ -73,8 +78,11 @@ export class ClubTestHelpers {
     // Club selector should be visible in the header area
     // For single club: shows as a div with club name
     // For multi club: shows as a button that can be clicked
-    const clubComponent = page.locator('header').locator('.w-2.h-2.bg-green-500.rounded-full').locator('..');
-    
+    const clubComponent = page
+      .locator('header')
+      .locator('.w-2.h-2.bg-green-500.rounded-full')
+      .locator('..');
+
     await expect(clubComponent).toBeVisible({ timeout: 10000 });
   }
 
@@ -92,18 +100,21 @@ export class ClubTestHelpers {
    */
   static async selectClub(page: Page, clubName: string): Promise<void> {
     // Find the club selector button in the header (only exists for multi-club users)
-    const selectorButton = page.locator('header').locator('button').filter({ 
-      has: page.locator('.w-2.h-2.bg-green-500.rounded-full')
-    });
-    
+    const selectorButton = page
+      .locator('header')
+      .locator('button')
+      .filter({
+        has: page.locator('.w-2.h-2.bg-green-500.rounded-full'),
+      });
+
     // Click to open the dropdown
     await selectorButton.click();
-    
+
     // Wait for dropdown to appear and click on the desired club
     const clubOption = page.locator(`button:has-text("${clubName}")`).last();
     await expect(clubOption).toBeVisible({ timeout: 5000 });
     await clubOption.click();
-    
+
     // Wait for the selection to be processed
     await page.waitForTimeout(2000);
   }
@@ -111,25 +122,40 @@ export class ClubTestHelpers {
   /**
    * Verify that club data is properly filtered (data isolation testing)
    */
-  static async verifyClubDataIsolation(page: Page, expectedClubName: string): Promise<void> {
+  static async verifyClubDataIsolation(
+    page: Page,
+    expectedClubName: string
+  ): Promise<void> {
     // Implementation will be added in Step 4 (Develop Refine)
-    console.log('ClubTestHelpers.verifyClubDataIsolation() - Implementation pending');
+    console.log(
+      'ClubTestHelpers.verifyClubDataIsolation() - Implementation pending'
+    );
   }
 
   /**
    * Navigate to different pages and verify club context persistence
    */
-  static async verifyClubPersistenceAcrossPages(page: Page, expectedClubName: string): Promise<void> {
+  static async verifyClubPersistenceAcrossPages(
+    page: Page,
+    expectedClubName: string
+  ): Promise<void> {
     // Implementation will be added in Step 4 (Develop Refine)
-    console.log('ClubTestHelpers.verifyClubPersistenceAcrossPages() - Implementation pending');
+    console.log(
+      'ClubTestHelpers.verifyClubPersistenceAcrossPages() - Implementation pending'
+    );
   }
 
   /**
    * Attempt unauthorized club access and verify proper error handling
    */
-  static async verifyUnauthorizedClubAccess(page: Page, unauthorizedClubName: string): Promise<void> {
+  static async verifyUnauthorizedClubAccess(
+    page: Page,
+    unauthorizedClubName: string
+  ): Promise<void> {
     // Implementation will be added in Step 4 (Develop Refine)
-    console.log('ClubTestHelpers.verifyUnauthorizedClubAccess() - Implementation pending');
+    console.log(
+      'ClubTestHelpers.verifyUnauthorizedClubAccess() - Implementation pending'
+    );
   }
 
   /**
@@ -147,8 +173,11 @@ export class ClubTestHelpers {
   static async getCurrentlySelectedClub(page: Page): Promise<string | null> {
     try {
       // Look for club name in the header area (could be in div or button)
-      const clubComponent = page.locator('header').locator('.w-2.h-2.bg-green-500.rounded-full').locator('..');
-      
+      const clubComponent = page
+        .locator('header')
+        .locator('.w-2.h-2.bg-green-500.rounded-full')
+        .locator('..');
+
       const clubText = await clubComponent.textContent();
       // Extract just the club name part (remove any role text or extra content)
       const clubName = clubText?.split('\n')[0]?.trim() || null;
@@ -161,14 +190,20 @@ export class ClubTestHelpers {
   /**
    * Verify error message is displayed to user
    */
-  static async verifyErrorMessage(page: Page, expectedErrorText: string): Promise<void> {
+  static async verifyErrorMessage(
+    page: Page,
+    expectedErrorText: string
+  ): Promise<void> {
     // Look for error message in common error display areas
-    const errorMessage = page.locator(`text="${expectedErrorText}"`).or(
-      page.locator('[role="alert"]').filter({ hasText: expectedErrorText })
-    ).or(
-      page.locator('.error, .alert-error, [class*="error"], [class*="alert"]').filter({ hasText: expectedErrorText })
-    );
-    
+    const errorMessage = page
+      .locator(`text="${expectedErrorText}"`)
+      .or(page.locator('[role="alert"]').filter({ hasText: expectedErrorText }))
+      .or(
+        page
+          .locator('.error, .alert-error, [class*="error"], [class*="alert"]')
+          .filter({ hasText: expectedErrorText })
+      );
+
     await expect(errorMessage).toBeVisible({ timeout: 5000 });
   }
 
@@ -192,4 +227,4 @@ export class ClubTestHelpers {
       // Ignore security errors during browser state clearing
     }
   }
-} 
+}

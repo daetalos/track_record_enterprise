@@ -37,7 +37,7 @@ services:
       - '5432:5432'
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d modern_web_app"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d modern_web_app']
       interval: 5s
       timeout: 5s
       retries: 5
@@ -51,7 +51,7 @@ services:
       - redis_data:/data
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 5s
       timeout: 3s
       retries: 5
