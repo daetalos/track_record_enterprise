@@ -1,9 +1,23 @@
 import { withAuth } from 'next-auth/middleware';
 import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+import { requiresClubAuth } from '@/lib/middleware/clubAuth';
 
 export default withAuth(
-  function middleware() {
-    // If we get here, the user is authenticated
+  async function middleware(request: NextRequest) {
+    const { pathname } = request.nextUrl;
+
+    // For API routes that require club authorization, we'll let them handle
+    // the club validation internally since Edge Runtime can't access database
+    if (pathname.startsWith('/api/') && requiresClubAuth(pathname)) {
+      // Add a header to indicate this route requires club authorization
+      // The API route handler will check this and validate accordingly
+      const response = NextResponse.next();
+      response.headers.set('x-requires-club-auth', 'true');
+      return response;
+    }
+
+    // For all other routes, proceed normally
     return NextResponse.next();
   },
   {
@@ -18,7 +32,8 @@ export default withAuth(
           pathname === '/signup' ||
           pathname.startsWith('/api/auth') ||
           pathname.startsWith('/signin') ||
-          pathname.startsWith('/signup')
+          pathname.startsWith('/signup') ||
+          pathname.startsWith('/api/health')
         ) {
           return true;
         }
