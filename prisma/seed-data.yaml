@@ -1,0 +1,81 @@
+# Development Seed Data Configuration
+# This file defines the test data structure for local development environments
+# All users will have the password: password123
+
+metadata:
+  version: "1.0"
+  description: "Track Record Enterprise - Development Seed Data"
+  lastUpdated: "2024-12-28"
+
+clubs:
+  - name: "Elite Athletics Club"
+    description: "Premier track and field club for competitive athletes seeking excellence in sprints, distance, and field events."
+  
+  - name: "Metro Runners"
+    description: "Community-focused running club for all skill levels, from casual joggers to marathon enthusiasts."
+  
+  - name: "Peak Performance Academy"
+    description: "High-performance training facility specializing in strength, conditioning, and athletic development."
+  
+  - name: "University Track Team"
+    description: "Collegiate track and field program competing at regional and national championship levels."
+
+users:
+  - name: "Track Admin"
+    email: "admin@trackrecord.dev"
+    role_description: "Multi-club owner/admin"
+    
+  - name: "John Coach"
+    email: "john.coach@trackrecord.dev"
+    role_description: "Multi-club admin"
+    
+  - name: "Sarah Athlete"
+    email: "sarah.athlete@trackrecord.dev"
+    role_description: "Single club member"
+    
+  - name: "Mike Member"
+    email: "mike.member@trackrecord.dev"
+    role_description: "Mixed roles"
+    
+  - name: "Lisa Runner"
+    email: "lisa.runner@trackrecord.dev"
+    role_description: "Single club member"
+
+# User-Club relationships (0-based indexes referencing users and clubs arrays above)
+relationships:
+  # Track Admin (user 0) - Owner of Elite Athletics, Admin of Metro Runners
+  - user_index: 0
+    club_index: 0
+    role: "OWNER"
+    
+  - user_index: 0
+    club_index: 1
+    role: "ADMIN"
+    
+  # John Coach (user 1) - Admin at Elite Athletics and Peak Performance
+  - user_index: 1
+    club_index: 0
+    role: "ADMIN"
+    
+  - user_index: 1
+    club_index: 2
+    role: "ADMIN"
+    
+  # Sarah Athlete (user 2) - Member of Metro Runners
+  - user_index: 2
+    club_index: 1
+    role: "MEMBER"
+    
+  # Mike Member (user 3) - Member of Elite Athletics, Admin at University Team
+  - user_index: 3
+    club_index: 0
+    role: "MEMBER"
+    
+  - user_index: 3
+    club_index: 3
+    role: "ADMIN"
+    
+  # Lisa Runner (user 4) - Member of Peak Performance
+  - user_index: 4
+    club_index: 2
+    role: "MEMBER" 
