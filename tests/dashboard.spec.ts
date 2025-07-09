@@ -10,26 +10,16 @@ test.describe('Dashboard Application', () => {
   });
 
   test('loads dashboard when authenticated', async ({ page }) => {
-    // Generate a unique email for this test
-    const testEmail = `test.dashboard.${Date.now()}@example.com`;
+    // Use existing seed user instead of registering new one
+    const testEmail = 'sarah.athlete@trackrecord.dev';
+    const testPassword = 'password123';
 
-    // Register and authenticate first
-    await page.goto('/signup');
+    // Go directly to signin page
+    await page.goto('/signin');
 
-    // Fill out registration form
-    await page.getByPlaceholder('Enter your first name').fill('Test');
-    await page.getByPlaceholder('Enter your last name').fill('User');
+    // Sign in with existing seed user credentials
     await page.getByPlaceholder('Enter your email').fill(testEmail);
-    await page.getByPlaceholder('Enter your password').fill('password123');
-    await page.locator('input[type="checkbox"]').check({ force: true });
-    await page.getByRole('button', { name: 'Sign Up', exact: true }).click();
-
-    // Wait for redirect to signin (more lenient timeout for WebKit)
-    await page.waitForURL('**/signin**', { timeout: 15000 });
-
-    // Now sign in with the same credentials
-    await page.getByPlaceholder('Enter your email').fill(testEmail);
-    await page.getByPlaceholder('Enter your password').fill('password123');
+    await page.getByPlaceholder('Enter your password').fill(testPassword);
 
     // Use exact matching to avoid ambiguity with Google/X signin buttons
     await page.getByRole('button', { name: 'Sign In', exact: true }).click();
