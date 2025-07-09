@@ -101,6 +101,8 @@ model Club {
 
   // Club relationships
   userClubs   UserClub[]
+  ageGroups   AgeGroup[]
+  athletes    Athlete[]
 
   @@index([name])
   @@index([isActive])
@@ -136,4 +138,68 @@ enum ClubRole {
   MEMBER
   ADMIN
   OWNER
+}
+
+// Gender model for athlete categorization
+model Gender {
+  id      String @id @default(cuid())
+  name    String @unique @db.VarChar(8)     // Male, Female
+  initial String @unique @db.VarChar(1)     // M, F
+  
+  // Relationships
+  athletes Athlete[]
+
+  @@index([name])
+  @@index([initial])
+  @@map("genders")
+}
+
+// AgeGroup model for competition categorization
+model AgeGroup {
+  id       String @id @default(cuid())
+  clubId   String
+  name     String @db.VarChar(32)          // U9, U10, U11, Junior, Senior, Masters
+  ordinal  Int                             // For proper sorting (U9=1, U10=2, etc.)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  club     Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  athletes Athlete[]
+
+  // Business constraints
+  @@unique([clubId, name])  // Age group names unique within each club
+  @@index([clubId])
+  @@index([clubId, ordinal])
+  @@index([ordinal])
+  @@map("age_groups")
+}
+
+// Athlete model for individual athlete records
+model Athlete {
+  id        String   @id @default(cuid())
+  clubId    String
+  genderId  String
+  firstName String   @db.VarChar(64)
+  lastName  String   @db.VarChar(64)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  gender    Gender   @relation(fields: [genderId], references: [id], onDelete: Restrict)
+  ageGroup  AgeGroup? @relation(fields: [ageGroupId], references: [id], onDelete: SetNull)
+  
+  // Optional age group assignment
+  ageGroupId String?
+
+  // Business constraints
+  @@unique([clubId, firstName, lastName])  // Prevent duplicate athletes within club
+  @@index([clubId])
+  @@index([genderId])
+  @@index([ageGroupId])
+  @@index([clubId, firstName])
+  @@index([clubId, lastName])
+  @@index([clubId, firstName, lastName])
+  @@map("athletes")
 }

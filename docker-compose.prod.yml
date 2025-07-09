@@ -32,7 +32,7 @@ services:
           memory: 256M
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d modern_web_app"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d modern_web_app']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -58,7 +58,7 @@ services:
           memory: 64M
     restart: always
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
