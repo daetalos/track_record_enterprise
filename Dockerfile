@@ -43,9 +43,10 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-# Install OpenSSL for Prisma runtime detection
+# Install OpenSSL for Prisma runtime detection and curl for seeding
 RUN apt-get update && apt-get install -y --no-install-recommends \
     openssl \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd --system --gid 1001 nodejs
@@ -59,6 +60,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Copy database schema and generated client
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Copy required node_modules for seeding (bcryptjs, js-yaml)
+COPY --from=builder /app/node_modules/bcryptjs ./node_modules/bcryptjs
+COPY --from=builder /app/node_modules/js-yaml ./node_modules/js-yaml
 
 # Copy entrypoint script and make it executable
 COPY entrypoint.sh /usr/local/bin/
