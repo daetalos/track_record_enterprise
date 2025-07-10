@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import AthleteForm from '../AthleteForm';
 import type { AthleteWithRelations } from '@/types/athlete';
@@ -490,9 +490,11 @@ describe('AthleteForm', () => {
       ).toBeDisabled();
 
       // Resolve the promise to clean up
-      resolvePromise!({
-        ok: true,
-        json: async () => ({ success: true, data: mockAthlete }),
+      await act(async () => {
+        resolvePromise!({
+          ok: true,
+          json: async () => ({ success: true, data: mockAthlete }),
+        });
       });
     });
 

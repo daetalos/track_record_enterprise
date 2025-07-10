@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import AthleteCombobox from '../AthleteCombobox';
 import { useAthleteSearch } from '@/hooks/useAthleteSearch';
@@ -125,7 +125,7 @@ describe('AthleteCombobox', () => {
       expect(screen.getByRole('status', { hidden: true })).toBeInTheDocument();
     });
 
-    it('should display error message when there is an error', () => {
+    it('should display error message when there is an error', async () => {
       mockUseAthleteSearch.mockReturnValue({
         ...defaultSearchHookReturn,
         error: 'Search failed',
@@ -133,7 +133,14 @@ describe('AthleteCombobox', () => {
 
       render(<AthleteCombobox value={null} onChange={mockOnChange} />);
 
-      expect(screen.getByText('Error: Search failed')).toBeInTheDocument();
+      // Focus the input and type to trigger dropdown opening
+      const input = screen.getByRole('combobox');
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'test' } });
+
+      await waitFor(() => {
+        expect(screen.getByText('Error: Search failed')).toBeInTheDocument();
+      });
     });
 
     it('should display no results message when no athletes found', () => {
@@ -162,26 +169,55 @@ describe('AthleteCombobox', () => {
       });
     });
 
-    it('should display athlete options when available', () => {
+    it('should display athlete options when available', async () => {
       render(<AthleteCombobox value={null} onChange={mockOnChange} />);
 
-      expect(screen.getByText('Doe, John')).toBeInTheDocument();
-      expect(screen.getByText('Smith, Jane')).toBeInTheDocument();
+      // Focus the input and type to trigger dropdown opening
+      const input = screen.getByRole('combobox');
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'test' } });
+
+      await waitFor(() => {
+        expect(screen.getByText('Doe, John')).toBeInTheDocument();
+        expect(screen.getByText('Smith, Jane')).toBeInTheDocument();
+      });
     });
 
-    it('should display gender and age group information', () => {
+    it('should display gender and age group information', async () => {
       render(<AthleteCombobox value={null} onChange={mockOnChange} />);
 
-      expect(screen.getByText('M · U10')).toBeInTheDocument();
-      expect(screen.getByText('F · U12')).toBeInTheDocument();
+      // Focus the input and type to trigger dropdown opening
+      const input = screen.getByRole('combobox');
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'test' } });
+
+      await waitFor(() => {
+        expect(screen.getByText('M · U10')).toBeInTheDocument();
+        expect(screen.getByText('F · U12')).toBeInTheDocument();
+      });
     });
 
-    it('should call onChange when athlete is selected', () => {
+    it('should call onChange when athlete is selected', async () => {
       render(<AthleteCombobox value={null} onChange={mockOnChange} />);
 
-      fireEvent.click(screen.getByText('Doe, John'));
+      // Focus the input and type to trigger dropdown opening
+      const input = screen.getByRole('combobox');
+      fireEvent.focus(input);
+      fireEvent.change(input, { target: { value: 'test' } });
 
-      expect(mockOnChange).toHaveBeenCalledWith(mockAthletes[0]);
+      await waitFor(() => {
+        expect(screen.getByText('Doe, John')).toBeInTheDocument();
+      });
+
+      // Use mouseDown and mouseUp events which work better with HeadlessUI
+      const option = screen.getByText('Doe, John');
+      fireEvent.mouseDown(option);
+      fireEvent.mouseUp(option);
+      fireEvent.click(option);
+
+      await waitFor(() => {
+        expect(mockOnChange).toHaveBeenCalledWith(mockAthletes[0]);
+      });
     });
   });
 

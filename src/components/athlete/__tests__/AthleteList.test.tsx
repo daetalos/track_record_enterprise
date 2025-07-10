@@ -32,6 +32,11 @@ vi.mock('@/icons', () => ({
       group
     </div>
   ),
+  EyeIcon: ({ className }: { className?: string }) => (
+    <div className={className} data-testid="eye-icon">
+      view
+    </div>
+  ),
 }));
 
 // Mock Button component to avoid complex dependencies

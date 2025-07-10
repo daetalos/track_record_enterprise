@@ -180,10 +180,10 @@ describe('/api/athletes', () => {
       // Assert
       expect(response.status).toBe(200);
       expect(data.success).toBe(true);
-      expect(data.data.athletes).toHaveLength(2);
-      expect(data.data.athletes[0].firstName).toBe('John');
-      expect(data.data.athletes[1].firstName).toBe('Jane');
-      expect(data.data.total).toBe(2);
+      expect(data.data).toHaveLength(2);
+      expect(data.data[0].firstName).toBe('John');
+      expect(data.data[1].firstName).toBe('Jane');
+      expect(data.pagination.total).toBe(2);
     });
 
     it('should filter athletes by search query', async () => {
@@ -216,7 +216,7 @@ describe('/api/athletes', () => {
       });
       mockPrisma.athlete.findMany.mockResolvedValue(mockAthletes);
       mockPrisma.athlete.count.mockResolvedValue(1);
-      const request = createMockRequest({ clubId: 'club1', query: 'John' });
+      const request = createMockRequest({ clubId: 'club1', search: 'John' });
 
       // Act
       const response = await GET(request);
@@ -232,7 +232,7 @@ describe('/api/athletes', () => {
           ],
         },
         orderBy: [{ lastName: 'asc' }, { firstName: 'asc' }],
-        take: 50,
+        take: 10,
         skip: 0,
         include: {
           club: {

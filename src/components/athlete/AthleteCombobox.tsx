@@ -96,7 +96,11 @@ export default function AthleteCombobox({
           {/* Loading indicator */}
           {isLoading && (
             <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"></div>
+              <div
+                role="status"
+                aria-label="Loading athletes"
+                className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-indigo-600"
+              ></div>
             </div>
           )}
 
@@ -105,6 +109,7 @@ export default function AthleteCombobox({
             <button
               type="button"
               onClick={handleClear}
+              aria-label="Clear selection"
               className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
             >
               <svg className="h-4 w-4" fill="none" stroke="currentColor">
