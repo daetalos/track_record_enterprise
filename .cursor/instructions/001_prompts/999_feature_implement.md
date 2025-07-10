@@ -1,1 +1,3 @@
 @003-club-management-execution-plan.md I want you to read this execution plan and use sequential thinking to organise your thoughts on how you will follow it to implement it's iterations in order to achieve this user story @02_club_management.md.
+
+Please ensure that you regularly check back on the plan and follow the instruction flow exactly. This is important so we don't miss things like e2e test, updating the progress of the plan etc
