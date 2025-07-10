@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useClub } from '@/context/ClubContext';
 import Form from '@/components/form/Form';
 import InputField from '@/components/form/input/InputField';
+import Button from '@/components/ui/button/Button';
 
 import type {
   Gender,
@@ -265,11 +266,16 @@ const AthleteForm: React.FC<AthleteFormProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            {onCancel && (
+              <Button variant="outline" onClick={onCancel} disabled={isLoading}>
+                Cancel
+              </Button>
+            )}
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-medium bg-brand-500 text-white rounded-lg shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed disabled:opacity-50 transition"
+              className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-5 py-3.5 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
@@ -280,17 +286,6 @@ const AthleteForm: React.FC<AthleteFormProps> = ({
                 'Create Athlete'
               )}
             </button>
-
-            {onCancel && (
-              <button
-                type="button"
-                onClick={onCancel}
-                disabled={isLoading}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-medium bg-white text-gray-700 rounded-lg ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 transition dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300"
-              >
-                Cancel
-              </button>
-            )}
           </div>
         </div>
       </Form>
