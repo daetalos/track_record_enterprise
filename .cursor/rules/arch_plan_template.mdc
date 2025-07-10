@@ -175,6 +175,66 @@ docker-compose logs web --tail=50  # Check for deployment errors
 docker-compose down
 ```
 
+### **Step 6.8: Verify Completion Criteria (MANDATORY BEFORE PR)**
+
+**🎯 SYSTEMATIC COMPLETION VERIFICATION**
+
+Before creating any PR, ALL criteria must be explicitly verified with evidence:
+
+```powershell
+# Final test validation
+npm run test:all                # All tests passing
+npm run build                   # Clean build confirmation
+npm run quality:check          # No linting/formatting issues
+```
+
+**ITERATION COMPLETION CRITERIA VERIFICATION:**
+
+Review each completion criteria from the iteration's criteria section:
+
+- [ ] **[Criteria 1 from iteration]** 
+  - Evidence: _______________________________________________
+  
+- [ ] **[Criteria 2 from iteration]** 
+  - Evidence: _______________________________________________
+  
+- [ ] **[Continue for all iteration-specific criteria]**
+  - Evidence: _______________________________________________
+
+**REGRESSION & QUALITY VERIFICATION:**
+
+- [ ] **No breaking changes** to existing functionality
+  - Evidence: Existing test suite: ___/___ passing (same as baseline)
+  
+- [ ] **No performance degradation** in existing features
+  - Evidence: _______________________________________________
+  
+- [ ] **All npm scripts working** (test, build, lint, format)
+  - Evidence: _______________________________________________
+  
+- [ ] **TypeScript compilation clean** with no type errors
+  - Evidence: _______________________________________________
+
+**DOCUMENTATION & PLAN UPDATES:**
+
+- [ ] **Execution plan updated** with iteration completion status
+  - Evidence: Progress dashboard shows iteration marked complete
+  
+- [ ] **Implementation deviations documented** (if any)
+  - Evidence: _______________________________________________
+  
+- [ ] **Next iteration dependencies** confirmed ready
+  - Evidence: _______________________________________________
+
+**FINAL SIGN-OFF:**
+
+- [ ] **ALL completion criteria verified** and evidence provided above
+- [ ] **Iteration is COMPLETE** and ready for PR creation
+- [ ] **No outstanding issues** or incomplete features
+- [ ] **Ready to proceed** with Step 7: Create PR & Merge
+
+**⚠️ DO NOT PROCEED TO PR CREATION UNLESS ALL ITEMS ABOVE ARE CHECKED WITH EVIDENCE**
+
 ### **Step 7: Create PR & Merge (From git-standards.mdc)**
 ```powershell
 # Push feature branch
@@ -338,6 +398,7 @@ Before finalizing any execution plan, verify:
 - [ ] **Test writing strategy** clearly specifies Step 4 as testing phase
 - [ ] **Coverage requirements** mandate 100% coverage for new functionality
 - [ ] **Test patterns** require following existing project structure (Vitest, etc.)
+- [ ] **Completion criteria verification** includes Step 6.8 with evidence requirements
 - [ ] **Git workflow** includes fresh main pulls and PR creation
 - [ ] **Session management** provides context recovery procedures
 - [ ] **Regression protection** ensures backward compatibility
