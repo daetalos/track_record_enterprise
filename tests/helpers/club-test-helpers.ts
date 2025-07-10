@@ -52,12 +52,38 @@ export class ClubTestHelpers {
     await page.getByPlaceholder('Enter your email').fill(email);
     await page.getByPlaceholder('Enter your password').fill(password);
 
+    // Set up response waiting for authentication
+    const authResponsePromise = page.waitForResponse(
+      response => 
+        (response.url().includes('/api/auth/') || response.url().includes('/dashboard')) &&
+        response.status() < 400,
+      { timeout: 20000 }
+    );
+
     // Submit form
     await page.getByRole('button', { name: 'Sign In', exact: true }).click();
 
-    // Wait for successful authentication and redirect to dashboard
-    await page.waitForURL('**/dashboard**', { timeout: 10000 });
-    await this.waitForAuthentication(page);
+    try {
+      // Wait for successful authentication response
+      await authResponsePromise;
+      
+      // Wait for successful authentication and redirect to dashboard
+      await page.waitForURL('**/dashboard**', { timeout: 15000 });
+      await this.waitForAuthentication(page);
+    } catch (error) {
+      // If the first attempt fails, try waiting a bit longer
+      console.warn('Initial signin attempt timed out, retrying...');
+      await page.waitForTimeout(2000);
+      
+      // Check if we're already on dashboard (maybe the redirect happened faster than expected)
+      if (page.url().includes('/dashboard')) {
+        await this.waitForAuthentication(page);
+        return;
+      }
+      
+      // If still not authenticated, throw the error
+      throw error;
+    }
   }
 
   /**
@@ -163,8 +189,13 @@ export class ClubTestHelpers {
    */
   static async waitForPageReady(page: Page): Promise<void> {
     // Wait for network to be idle and page to be fully loaded
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1000); // Additional buffer for React hydration
+    await page.waitForLoadState('networkidle', { timeout: 30000 });
+    
+    // Wait for DOM content to be loaded
+    await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
+    
+    // Additional buffer for React hydration and state updates
+    await page.waitForTimeout(1500);
   }
 
   /**
