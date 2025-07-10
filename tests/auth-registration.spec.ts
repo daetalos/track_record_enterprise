@@ -160,13 +160,13 @@ test.describe('User Registration Flow', () => {
 
   test('should successfully register a new user', async ({ page }) => {
     const app = new AppWorkflow(page);
-    
+
     // ✅ Using AuthPage POM for sign-up workflow
     await app.auth.signUp({
       firstName: 'John',
       lastName: 'Doe',
       email: `test.${Date.now()}@example.com`,
-      password: 'password123'
+      password: 'password123',
     });
 
     // ✅ AuthPage POM already handles redirect verification and timeout

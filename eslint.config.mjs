@@ -30,6 +30,16 @@ const eslintConfig = [
       'jsvectormap.d.ts',
     ],
   },
+  {
+    files: [
+      '**/__tests__/**/*.{js,jsx,ts,tsx}',
+      '**/*.{test,spec}.{js,jsx,ts,tsx}',
+    ],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+      '@typescript-eslint/no-unused-vars': 'warn',
+    },
+  },
 ];
 
 export default eslintConfig;
