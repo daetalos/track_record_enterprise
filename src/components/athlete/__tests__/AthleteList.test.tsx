@@ -8,10 +8,48 @@ import {
 } from '@testing-library/react';
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { AthleteList } from '../AthleteList';
+
 // Mock ClubContext
 const mockUseClub = vi.fn();
 vi.mock('@/context/ClubContext', () => ({
   useClub: () => mockUseClub(),
+}));
+
+// Mock icons to prevent SVG data URI errors
+vi.mock('@/icons', () => ({
+  PencilIcon: ({ className }: { className?: string }) => (
+    <div className={className} data-testid="pencil-icon">
+      edit
+    </div>
+  ),
+  TrashBinIcon: ({ className }: { className?: string }) => (
+    <div className={className} data-testid="trash-icon">
+      delete
+    </div>
+  ),
+}));
+
+// Mock Button component to avoid complex dependencies
+vi.mock('@/components/ui/button/Button', () => ({
+  default: ({
+    children,
+    onClick,
+    disabled,
+    startIcon,
+    className,
+    ...props
+  }: any) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={className}
+      data-testid="button"
+      {...props}
+    >
+      {startIcon}
+      {children}
+    </button>
+  ),
 }));
 
 // Mock fetch globally
@@ -103,10 +141,19 @@ describe('AthleteList', () => {
       selectClub: vi.fn(),
     });
 
-    render(<AthleteList />);
+    await act(async () => {
+      render(<AthleteList />);
+    });
+
+    // Wait for the fetch to complete and athletes to be displayed
+    await waitFor(
+      () => {
+        expect(screen.getByText('John Doe')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
       expect(screen.getByText('Jane Smith')).toBeInTheDocument();
     });
 
@@ -146,12 +193,17 @@ describe('AthleteList', () => {
       selectClub: vi.fn(),
     });
 
-    render(<AthleteList />);
+    await act(async () => {
+      render(<AthleteList />);
+    });
 
     // Wait for initial load
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByText('John Doe')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Clear the mock to track new calls
     mockFetch.mockClear();
@@ -193,25 +245,33 @@ describe('AthleteList', () => {
       selectClub: vi.fn(),
     });
 
-    render(<AthleteList />);
-
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    await act(async () => {
+      render(<AthleteList />);
     });
 
+    await waitFor(
+      () => {
+        expect(screen.getByText('John Doe')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
+
     // Check pagination elements exist (mobile pagination is always visible)
-    const nextButtons = screen.getAllByText('Next');
-    expect(nextButtons.length).toBeGreaterThan(0);
+    await waitFor(() => {
+      const nextButtons = screen.getAllByText('Next');
+      expect(nextButtons.length).toBeGreaterThan(0);
 
-    const prevButtons = screen.getAllByText('Previous');
-    expect(prevButtons.length).toBeGreaterThan(0);
+      const prevButtons = screen.getAllByText('Previous');
+      expect(prevButtons.length).toBeGreaterThan(0);
 
-    // Check page number buttons exist (desktop pagination) - there are multiple "1"s, so use getAllByText
-    const pageOneButtons = screen.getAllByText('1');
-    expect(pageOneButtons.length).toBeGreaterThan(0);
-    expect(screen.getByText('2')).toBeInTheDocument();
+      // Check page number buttons exist (desktop pagination) - there are multiple "1"s, so use getAllByText
+      const pageOneButtons = screen.getAllByText('1');
+      expect(pageOneButtons.length).toBeGreaterThan(0);
+      expect(screen.getByText('2')).toBeInTheDocument();
+    });
 
     // Test next button functionality - use the first Next button found
+    const nextButtons = screen.getAllByText('Next');
     const nextButton = nextButtons[0];
     expect(nextButton).not.toBeDisabled();
 
@@ -241,7 +301,9 @@ describe('AthleteList', () => {
       selectClub: vi.fn(),
     });
 
-    render(<AthleteList />);
+    await act(async () => {
+      render(<AthleteList />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Failed to fetch athletes')).toBeInTheDocument();
@@ -259,7 +321,9 @@ describe('AthleteList', () => {
       selectClub: vi.fn(),
     });
 
-    render(<AthleteList />);
+    await act(async () => {
+      render(<AthleteList />);
+    });
 
     await waitFor(() => {
       expect(screen.getByText('Failed to fetch athletes')).toBeInTheDocument();
@@ -288,7 +352,9 @@ describe('AthleteList', () => {
       selectClub: vi.fn(),
     });
 
-    render(<AthleteList />);
+    await act(async () => {
+      render(<AthleteList />);
+    });
 
     await waitFor(() => {
       expect(
@@ -307,11 +373,16 @@ describe('AthleteList', () => {
     });
 
     // First load with athletes
-    render(<AthleteList />);
-
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    await act(async () => {
+      render(<AthleteList />);
     });
+
+    await waitFor(
+      () => {
+        expect(screen.getByText('John Doe')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Mock empty search result
     mockFetch.mockResolvedValue({
@@ -364,11 +435,16 @@ describe('AthleteList', () => {
       selectClub: vi.fn(),
     });
 
-    render(<AthleteList />);
-
-    await waitFor(() => {
-      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    await act(async () => {
+      render(<AthleteList />);
     });
+
+    await waitFor(
+      () => {
+        expect(screen.getByText('John Doe')).toBeInTheDocument();
+      },
+      { timeout: 3000 }
+    );
 
     // Clear mock and perform search
     mockFetch.mockClear();
