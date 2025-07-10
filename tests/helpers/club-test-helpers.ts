@@ -3,24 +3,24 @@ import type { TestUser } from '../fixtures/club-test-data';
 
 /**
  * @deprecated ClubTestHelpers is deprecated
- * 
+ *
  * ⚠️  DEPRECATED: This class has been replaced by Page Object Models
- * 
+ *
  * All functionality has been migrated to the new Playwright testing standards:
  * - AuthPage: handles authentication workflows
  * - ClubPage: handles club selection and management
  * - AppWorkflow: combines auth and club workflows
- * 
+ *
  * New POMs provide:
  * ✅ Semantic locators only (getByRole, getByText, etc.)
  * ✅ No arbitrary timeouts - proper Playwright waiting
  * ✅ Better error handling and debugging
  * ✅ Cleaner, more maintainable tests
- * 
+ *
  * Usage:
  * ```typescript
  * import { AppWorkflow } from '../pages';
- * 
+ *
  * test('my test', async ({ page }) => {
  *   const app = new AppWorkflow(page);
  *   await app.auth.goto();
@@ -28,7 +28,7 @@ import type { TestUser } from '../fixtures/club-test-data';
  *   await app.club.selectClub('Elite Athletics Club');
  * });
  * ```
- * 
+ *
  * This file will be removed in a future cleanup.
  */
 
@@ -85,8 +85,9 @@ export class ClubTestHelpers {
 
     // Set up response waiting for authentication
     const authResponsePromise = page.waitForResponse(
-      response => 
-        (response.url().includes('/api/auth/') || response.url().includes('/dashboard')) &&
+      response =>
+        (response.url().includes('/api/auth/') ||
+          response.url().includes('/dashboard')) &&
         response.status() < 400,
       { timeout: 20000 }
     );
@@ -97,7 +98,7 @@ export class ClubTestHelpers {
     try {
       // Wait for successful authentication response
       await authResponsePromise;
-      
+
       // Wait for successful authentication and redirect to dashboard
       await page.waitForURL('**/dashboard**', { timeout: 15000 });
       await this.waitForAuthentication(page);
@@ -105,13 +106,13 @@ export class ClubTestHelpers {
       // If the first attempt fails, try waiting a bit longer
       console.warn('Initial signin attempt timed out, retrying...');
       await page.waitForTimeout(2000);
-      
+
       // Check if we're already on dashboard (maybe the redirect happened faster than expected)
       if (page.url().includes('/dashboard')) {
         await this.waitForAuthentication(page);
         return;
       }
-      
+
       // If still not authenticated, throw the error
       throw error;
     }
@@ -221,10 +222,10 @@ export class ClubTestHelpers {
   static async waitForPageReady(page: Page): Promise<void> {
     // Wait for network to be idle and page to be fully loaded
     await page.waitForLoadState('networkidle', { timeout: 30000 });
-    
+
     // Wait for DOM content to be loaded
     await page.waitForLoadState('domcontentloaded', { timeout: 15000 });
-    
+
     // Additional buffer for React hydration and state updates
     await page.waitForTimeout(1500);
   }

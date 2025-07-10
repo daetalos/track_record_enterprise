@@ -11,7 +11,7 @@ import { clubTestData, ClubTestDataSeeder } from './fixtures/club-test-data';
  * AC3: Club Context Switching
  * AC4: Data Isolation
  * AC5: Session Persistence
- * 
+ *
  * ✅ REFACTORED: Uses new Page Object Models instead of ClubTestHelpers
  * ✅ IMPROVED: Removed arbitrary timeouts and follows Playwright standards
  * ✅ CLEANER: Much more maintainable and reliable tests

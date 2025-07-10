@@ -2,11 +2,11 @@ import { Page, expect } from '@playwright/test';
 
 /**
  * ClubPage - Page Object Model for club management workflows
- * 
+ *
  * Encapsulates club selection and verification logic that was previously
  * embedded directly in test files. Removes arbitrary timeouts and
  * complex selector logic from tests.
- * 
+ *
  * Key improvements from existing patterns:
  * - No arbitrary timeouts (uses proper Playwright waiting)
  * - Semantic locators only
@@ -19,7 +19,7 @@ export class ClubPage {
   /**
    * Select a club from the club selector dropdown
    * Handles both multi-club users (with dropdown) and single-club users
-   * 
+   *
    * @param clubName - Name of the club to select
    */
   async selectClub(clubName: string) {
@@ -38,16 +38,18 @@ export class ClubPage {
       });
 
     const hasClubSelector = await clubSelectorButton.isVisible();
-    
+
     if (hasClubSelector) {
       // Multi-club user: open dropdown and select club
       await clubSelectorButton.click();
-      
+
       // Select specific club from dropdown
-      const clubOption = this.page.locator('button').filter({ hasText: clubName });
+      const clubOption = this.page
+        .locator('button')
+        .filter({ hasText: clubName });
       await expect(clubOption.first()).toBeVisible({ timeout: 5000 });
       await clubOption.first().click();
-      
+
       // ✅ Wait for selection to be processed - no arbitrary timeout
       await this.expectClubSelected(clubName);
     } else {
@@ -58,24 +60,24 @@ export class ClubPage {
 
   /**
    * Verify that a specific club is currently selected
-   * 
+   *
    * @param clubName - Expected club name
    */
   async expectClubSelected(clubName: string) {
-    // Look for club name in header area
-    const clubText = this.page.locator('header').getByText(clubName);
+    // Look for club name in header area - could be in club selector button or display text
+    const clubText = this.page.locator('header').getByText(clubName, { exact: false });
     await expect(clubText).toBeVisible({ timeout: 10000 });
   }
 
   /**
    * Check if a specific club is currently selected (without throwing)
-   * 
+   *
    * @param clubName - Club name to check
    * @returns Promise<boolean> - true if club is selected
    */
   async isClubSelected(clubName: string): Promise<boolean> {
     try {
-      const clubText = this.page.locator('header').getByText(clubName);
+      const clubText = this.page.locator('header').getByText(clubName, { exact: false });
       await expect(clubText).toBeVisible({ timeout: 2000 });
       return true;
     } catch {
@@ -100,7 +102,7 @@ export class ClubPage {
   /**
    * Get the currently selected club name
    * Based on the working patterns from our successful tests
-   * 
+   *
    * @returns Promise<string | null> - Currently selected club name or null
    */
   async getCurrentlySelectedClub(): Promise<string | null> {
@@ -122,11 +124,16 @@ export class ClubPage {
 
       // For single-club users, look for club name in header text
       const headerText = await this.page.locator('header').textContent();
-      if (headerText && (headerText.includes('Elite Athletics Club') || headerText.includes('Metro Runners'))) {
-        if (headerText.includes('Elite Athletics Club')) return 'Elite Athletics Club';
+      if (
+        headerText &&
+        (headerText.includes('Elite Athletics Club') ||
+          headerText.includes('Metro Runners'))
+      ) {
+        if (headerText.includes('Elite Athletics Club'))
+          return 'Elite Athletics Club';
         if (headerText.includes('Metro Runners')) return 'Metro Runners';
       }
-      
+
       return null;
     } catch {
       return null;
@@ -136,19 +143,20 @@ export class ClubPage {
   /**
    * Handle the "No Club Selected" state
    * Navigates through club selection if user has no club selected
-   * 
+   *
    * @param clubName - Club to select
    */
   async handleNoClubSelected(clubName: string) {
     // Check if we're in "No Club Selected" state
-    const noClubHeading = this.page.getByRole('heading', { name: 'No Club Selected' });
-    
+    const noClubHeading = this.page.getByRole('heading', {
+      name: 'No Club Selected',
+    });
+
     try {
       await expect(noClubHeading).toBeVisible({ timeout: 3000 });
-      
+
       // We're in no club selected state, try to select a club
       await this.selectClub(clubName);
-      
     } catch {
       // Not in "No Club Selected" state, continue normally
     }
@@ -159,9 +167,9 @@ export class ClubPage {
    * Uses the same logic as our successful age-group tests
    */
   async expectClubContextLoaded() {
-    // Wait for page to be fully loaded first
-    await this.page.waitForLoadState('networkidle');
-    
+    // Wait for page to be loaded (without networkidle which can timeout)
+    await this.page.waitForLoadState('domcontentloaded');
+
     // Check for either club selector (multi-club) or club name in header (single-club)
     try {
       // Try multi-club pattern first
@@ -176,17 +184,17 @@ export class ClubPage {
   /**
    * Navigate to a page and ensure proper club context
    * Combines navigation with club context verification
-   * 
+   *
    * @param url - Page URL to navigate to
    * @param expectedClubName - Club that should be selected
    */
   async navigateWithClubContext(url: string, expectedClubName: string) {
-    await this.page.goto(url);
-    
+    await this.page.goto(url, { waitUntil: 'domcontentloaded' });
+
     // Handle potential "No Club Selected" state
     await this.handleNoClubSelected(expectedClubName);
-    
+
     // Verify club context is loaded
     await this.expectClubContextLoaded();
   }
-} 
+}
