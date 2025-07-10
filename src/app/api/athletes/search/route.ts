@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const clubId = searchParams.get('clubId') || session.selectedClubId;
     const query = searchParams.get('q') || '';
+    const genderId = searchParams.get('genderId') || undefined;
+    const ageGroupId = searchParams.get('ageGroupId') || undefined;
     const limit = parseInt(searchParams.get('limit') || '10', 10);
 
     if (!clubId) {
@@ -51,6 +53,8 @@ export async function GET(request: NextRequest) {
     // Build search where clause
     const whereClause: {
       clubId: string;
+      genderId?: string;
+      ageGroupId?: string;
       OR?: Array<{
         firstName?: { contains: string; mode: 'insensitive' };
         lastName?: { contains: string; mode: 'insensitive' };
@@ -58,6 +62,16 @@ export async function GET(request: NextRequest) {
     } = {
       clubId,
     };
+
+    // Add gender filter if provided
+    if (genderId) {
+      whereClause.genderId = genderId;
+    }
+
+    // Add age group filter if provided
+    if (ageGroupId) {
+      whereClause.ageGroupId = ageGroupId;
+    }
 
     // Add search query if provided (minimum 2 characters)
     if (query && query.length >= 2) {
