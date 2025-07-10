@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { AppWorkflow } from './pages';
 
 test.describe('Basic Functionality Tests', () => {
   test('homepage loads', async ({ page }) => {
@@ -8,22 +9,22 @@ test.describe('Basic Functionality Tests', () => {
   });
 
   test('signin page loads', async ({ page }) => {
-    await page.goto('/signin');
-    await page.waitForLoadState('networkidle');
+    const app = new AppWorkflow(page);
     
-    // Check if signin form is present
-    await expect(page.getByRole('heading', { name: 'Sign In' })).toBeVisible();
-    await expect(page.getByPlaceholder('Enter your email')).toBeVisible();
-    await expect(page.getByPlaceholder('Enter your password')).toBeVisible();
+    // ✅ Using AuthPage POM instead of manual navigation
+    await app.auth.goto();
+    await app.auth.expectSignInFormVisible();
     
     console.log('✅ Signin page loads with form fields');
   });
 
   test('can fill signin form', async ({ page }) => {
-    await page.goto('/signin');
-    await page.waitForLoadState('networkidle');
+    const app = new AppWorkflow(page);
     
-    // Fill the form using placeholders (not labels)
+    // ✅ Using AuthPage POM - goto() already verifies form is present
+    await app.auth.goto();
+    
+    // ✅ Using semantic locators through POM
     await page.getByPlaceholder('Enter your email').fill('admin@trackrecord.dev');
     await page.getByPlaceholder('Enter your password').fill('password123');
     
@@ -34,32 +35,25 @@ test.describe('Basic Functionality Tests', () => {
   });
 
   test('can sign in and reach dashboard', async ({ page }) => {
-    await page.goto('/signin');
-    await page.waitForLoadState('networkidle');
+    const app = new AppWorkflow(page);
     
-    // Sign in
-    await page.getByPlaceholder('Enter your email').fill('admin@trackrecord.dev');
-    await page.getByPlaceholder('Enter your password').fill('password123');
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
-
-    // Wait for dashboard
-    await page.waitForURL('/dashboard', { timeout: 10000 });
-    await expect(page).toHaveURL('/dashboard');
+    // ✅ Using AuthPage POM with proper waiting built-in
+    await app.auth.goto();
+    await app.auth.signInAsAdmin();
     
     console.log('✅ Can sign in and reach dashboard');
   });
 
   test('can navigate to age groups page', async ({ page }) => {
-    // Sign in first
-    await page.goto('/signin');
-    await page.getByPlaceholder('Enter your email').fill('admin@trackrecord.dev');
-    await page.getByPlaceholder('Enter your password').fill('password123');
-    await page.getByRole('button', { name: 'Sign In', exact: true }).click();
-    await page.waitForURL('/dashboard');
+    const app = new AppWorkflow(page);
+    
+    // ✅ Using AuthPage POM for authentication
+    await app.auth.goto();
+    await app.auth.signInAsAdmin();
 
     // Navigate to age groups
     await page.goto('/age-groups');
-    await page.waitForLoadState('networkidle');
+    // ✅ Removed arbitrary waiting - Playwright handles page readiness
     
     // Check if page loads - might show "No Club Selected" initially
     const noClubHeading = page.getByRole('heading', { name: 'No Club Selected' });

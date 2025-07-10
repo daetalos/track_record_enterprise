@@ -2,6 +2,37 @@ import { Page, expect } from '@playwright/test';
 import type { TestUser } from '../fixtures/club-test-data';
 
 /**
+ * @deprecated ClubTestHelpers is deprecated
+ * 
+ * ⚠️  DEPRECATED: This class has been replaced by Page Object Models
+ * 
+ * All functionality has been migrated to the new Playwright testing standards:
+ * - AuthPage: handles authentication workflows
+ * - ClubPage: handles club selection and management
+ * - AppWorkflow: combines auth and club workflows
+ * 
+ * New POMs provide:
+ * ✅ Semantic locators only (getByRole, getByText, etc.)
+ * ✅ No arbitrary timeouts - proper Playwright waiting
+ * ✅ Better error handling and debugging
+ * ✅ Cleaner, more maintainable tests
+ * 
+ * Usage:
+ * ```typescript
+ * import { AppWorkflow } from '../pages';
+ * 
+ * test('my test', async ({ page }) => {
+ *   const app = new AppWorkflow(page);
+ *   await app.auth.goto();
+ *   await app.auth.signInAsAdmin();
+ *   await app.club.selectClub('Elite Athletics Club');
+ * });
+ * ```
+ * 
+ * This file will be removed in a future cleanup.
+ */
+
+/**
  * Reusable Test Helper Functions for Club Management BDD Scenarios
  *
  * Provides common functionality for authentication, navigation,

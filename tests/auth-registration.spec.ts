@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test';
+import { AppWorkflow } from './pages';
 
 test.describe('User Registration Flow', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to signup page
-    await page.goto('/signup');
+    const app = new AppWorkflow(page);
+    // ✅ Using AuthPage POM instead of manual navigation
+    await app.auth.gotoSignUp();
   });
 
   test('should display the registration form', async ({ page }) => {
@@ -38,9 +40,7 @@ test.describe('User Registration Flow', () => {
   test('should validate email format - browser validation', async ({
     page,
   }) => {
-    // Wait for page to be fully loaded
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1000);
+    // ✅ Removed arbitrary timeouts - Playwright handles page readiness
 
     // Fill in all required fields with email that fails browser validation (no @)
     await page.getByPlaceholder('Enter your first name').fill('John');
@@ -48,7 +48,7 @@ test.describe('User Registration Flow', () => {
     await page.getByPlaceholder('Enter your email').fill('invalid-email');
     await page.getByPlaceholder('Enter your password').fill('password123');
 
-    // Check terms checkbox using force click on the actual checkbox input
+    // ✅ Fixed: Use working selector since terms checkbox doesn't have accessible name
     await page.locator('input[type="checkbox"]').check({ force: true });
 
     // Verify checkbox is checked
@@ -57,9 +57,7 @@ test.describe('User Registration Flow', () => {
     // Submit form
     await page.getByRole('button', { name: 'Sign Up', exact: true }).click();
 
-    // Wait for validation to appear
-    await page.waitForTimeout(1000);
-
+    // ✅ Removed arbitrary waiting - use proper Playwright waiting
     // Check browser validation error (this appears as a browser tooltip)
     // We can check this by verifying the form wasn't submitted (still on signup page)
     await expect(page).toHaveURL(/signup/);
@@ -70,9 +68,7 @@ test.describe('User Registration Flow', () => {
   });
 
   test('should validate email format - React validation', async ({ page }) => {
-    // Wait for page to be fully loaded
-    await page.waitForLoadState('networkidle');
-    await page.waitForTimeout(1000);
+    // ✅ Removed arbitrary timeouts - Playwright handles page readiness
 
     // Fill in all required fields with email that passes browser validation but fails React validation
     await page.getByPlaceholder('Enter your first name').fill('John');
@@ -80,7 +76,7 @@ test.describe('User Registration Flow', () => {
     await page.getByPlaceholder('Enter your email').fill('test@domain'); // has @ but no dot in domain
     await page.getByPlaceholder('Enter your password').fill('password123');
 
-    // Check terms checkbox using force click on the actual checkbox input
+    // ✅ Fixed: Use working selector since terms checkbox doesn't have accessible name
     await page.locator('input[type="checkbox"]').check({ force: true });
 
     // Verify checkbox is checked
@@ -89,13 +85,11 @@ test.describe('User Registration Flow', () => {
     // Submit form
     await page.getByRole('button', { name: 'Sign Up', exact: true }).click();
 
-    // Wait for validation to appear
-    await page.waitForTimeout(2000);
-
+    // ✅ Proper Playwright waiting instead of arbitrary timeout
     // Check React validation error
     await expect(
       page.getByText('Please enter a valid email address')
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 10000 });
   });
 
   test('should validate password length', async ({ page }) => {
@@ -165,25 +159,18 @@ test.describe('User Registration Flow', () => {
   });
 
   test('should successfully register a new user', async ({ page }) => {
-    // Fill out the form
-    await page.getByPlaceholder('Enter your first name').fill('John');
-    await page.getByPlaceholder('Enter your last name').fill('Doe');
-    await page
-      .getByPlaceholder('Enter your email')
-      .fill(`test.${Date.now()}@example.com`);
-    await page.getByPlaceholder('Enter your password').fill('password123');
+    const app = new AppWorkflow(page);
+    
+    // ✅ Using AuthPage POM for sign-up workflow
+    await app.auth.signUp({
+      firstName: 'John',
+      lastName: 'Doe',
+      email: `test.${Date.now()}@example.com`,
+      password: 'password123'
+    });
 
-    // Check terms checkbox using force click
-    await page.locator('input[type="checkbox"]').check({ force: true });
-
-    // Submit form
-    await page.getByRole('button', { name: 'Sign Up', exact: true }).click();
-
-    // Wait for redirect with generous timeout for potential network delay
-    await page.waitForURL('**/signin**', { timeout: 10000 });
-
+    // ✅ AuthPage POM already handles redirect verification and timeout
     // Should redirect to signin page with success message
-    await expect(page).toHaveURL(/signin/);
     await expect(page.locator('h1')).toContainText('Sign In');
   });
 
