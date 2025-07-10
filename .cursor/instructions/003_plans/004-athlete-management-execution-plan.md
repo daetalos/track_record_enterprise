@@ -7,7 +7,7 @@
 - **Current Iteration**: [x] Iteration 1A | [x] Iteration 1B | [ ] Iteration 1C | [ ] Iteration 2A | [ ] Iteration 2B | [ ] Iteration 3A | [ ] Iteration 3B | [ ] Iteration 4
 - **Overall Progress**: 25% Complete (2 of 8 iterations completed)
 - **Last Session Date**: January 10, 2025
-- **Status**: Iteration 1B completed successfully - Ready for Iteration 1C (Age Group Admin UI)
+- **Status**: Iteration 1B completed successfully with E2E test fixes - Ready for Iteration 1C (Age Group Admin UI)
 
 ### **Iteration Progress Summary**
 
@@ -48,7 +48,7 @@
 - [x] Docker Validation - API endpoints working in containerized environment
 - [x] Create PR & Merge
 
-**Results**: Age group API fully functional, permission system working, 65/65 unit tests passing, Docker deployment successful
+**Results**: Age group API fully functional, permission system working, 65/65 unit tests passing, E2E tests fixed and working (8/8 passed), Docker deployment successful
 
 ### **Session Quick Start**
 
@@ -363,21 +363,41 @@ npm run test:all                # Complete test suite
 npm run validate:pre-docker     # Full validation pipeline
 ```
 
-### **Step 6.5: Docker Deployment Validation** (In Progress)
+### **Step 6.5: Docker Deployment Validation** ✅
 
 ```powershell
 docker-compose up --build -d
-# Test age group API endpoints via HTTP requests
-# Verify staff user permissions for age group management
-# Test club-based isolation in age group operations
+# Test age group API endpoints via HTTP requests - COMPLETED
+# Verify staff user permissions for age group management - COMPLETED
+# Test club-based isolation in age group operations - COMPLETED
 docker-compose down
 ```
+
+### **Step 6.6: E2E Test Fixes** ✅
+
+**Problem**: E2E tests failing due to authentication and club selection issues
+**Solution**: Fixed authentication credentials and club selection logic in test suite
+
+**Fixed E2E Tests**:
+
+- `tests/basic-functionality.spec.ts` - Basic auth & navigation (5 tests passing)
+- `tests/age-group-modal.spec.ts` - Age group modal functionality (2 tests passing)
+- `tests/age-group-management.spec.ts` - Age group management (1 test passing)
+
+**Key Fixes Applied**:
+
+- Corrected authentication credentials (`admin@trackrecord.dev`/`password123`)
+- Fixed button selector specificity using `{ exact: true }` for "Sign In" button
+- Implemented proper club selection logic using header club selector
+- Established working authentication and club selection patterns for future tests
+
+**Test Results**: 8/8 E2E tests now passing consistently across Chrome
 
 ### **Step 7: Create PR & Merge**
 
 ```powershell
 git push -u origin feat/iteration1b-age-group-management
-gh pr create --title "feat(athlete): implement age group API and permissions" --body "Implements User Story 04 Iteration 1B: Age group CRUD API endpoints and staff permission system"
+gh pr create --title "feat(athlete): implement age group API and permissions with E2E test fixes" --body "Implements User Story 04 Iteration 1B: Age group CRUD API endpoints, staff permission system, and fixes E2E test suite"
 ```
 
 ## **📋 ITERATION 1B IMPLEMENTATION**
@@ -411,8 +431,11 @@ gh pr create --title "feat(athlete): implement age group API and permissions" --
 - [x] Proper HTTP status codes and error messages
 - [x] Zod validation schemas implemented
 - [x] Quality checks pass (linting, formatting, type checking)
-- [ ] Docker validation passes with age group API working
-- [ ] Club-specific age group isolation working correctly in containerized environment
+- [x] Docker validation passes with age group API working
+- [x] Club-specific age group isolation working correctly in containerized environment
+- [x] E2E test suite fixed and all tests passing (8/8)
+- [x] Authentication and club selection patterns established for future tests
+- [x] Ready for Iteration 1C (Age Group Admin UI)
 
 ## 🚀 **ITERATION 1C: AGE GROUP ADMIN UI INTERFACE**
 
