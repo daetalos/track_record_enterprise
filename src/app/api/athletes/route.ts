@@ -37,11 +37,12 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const clubId = searchParams.get('clubId') || session.selectedClubId;
-    const query = searchParams.get('query') || '';
+    const search = searchParams.get('search') || '';
     const genderId = searchParams.get('genderId') || '';
     const ageGroupId = searchParams.get('ageGroupId') || '';
-    const limit = parseInt(searchParams.get('limit') || '50', 10);
-    const offset = parseInt(searchParams.get('offset') || '0', 10);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const limit = parseInt(searchParams.get('limit') || '10', 10);
+    const offset = (page - 1) * limit;
 
     if (!clubId) {
       return NextResponse.json(
@@ -82,17 +83,17 @@ export async function GET(request: NextRequest) {
     };
 
     // Add search query filter (case-insensitive)
-    if (query) {
+    if (search) {
       whereClause.OR = [
         {
           firstName: {
-            contains: query,
+            contains: search,
             mode: 'insensitive',
           },
         },
         {
           lastName: {
-            contains: query,
+            contains: search,
             mode: 'insensitive',
           },
         },
@@ -144,14 +145,16 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
+    const totalPages = Math.ceil(total / limit);
+
     return NextResponse.json({
       success: true,
-      data: {
-        athletes,
+      data: athletes,
+      pagination: {
         total,
-        hasMore: total > offset + limit,
+        page,
         limit,
-        offset,
+        totalPages,
       },
     });
   } catch (error) {

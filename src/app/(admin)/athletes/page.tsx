@@ -1,35 +1,71 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { useClub } from '@/context/ClubContext';
 import ComponentCard from '@/components/common/ComponentCard';
 import Button from '@/components/ui/button/Button';
 import { AthleteList, AthleteModal } from '@/components/athlete';
+import type { AthleteListRef } from '@/components/athlete';
+import type { AthleteWithRelations } from '@/types/athlete';
 import { PlusIcon } from '@/icons';
 
 export default function AthletesPage() {
   const { selectedClub, isLoading: clubLoading } = useClub();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingAthlete, setEditingAthlete] =
+    useState<AthleteWithRelations | null>(null);
+  const athleteListRef = useRef<AthleteListRef>(null);
 
   // Handle creating new athlete
   const handleCreate = () => {
+    setEditingAthlete(null);
     setIsModalOpen(true);
   };
 
-  // Handle athlete saved (created)
+  // Handle editing athlete
+  const handleEdit = async (athlete: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    gender: { id: string; name: string; initial: string };
+    ageGroup: { id: string; name: string } | null;
+    createdAt: string;
+  }) => {
+    try {
+      // Fetch the full athlete data from the API
+      const response = await fetch(`/api/athletes/${athlete.id}`);
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setEditingAthlete(data.data);
+        setIsModalOpen(true);
+      } else {
+        console.error('Failed to fetch athlete details:', data.error);
+        alert('Failed to load athlete details');
+      }
+    } catch (error) {
+      console.error('Error fetching athlete details:', error);
+      alert('Failed to load athlete details');
+    }
+  };
+
+  // Handle athlete saved (created or updated)
   const handleAthleteSaved = () => {
     setIsModalOpen(false);
-    // The AthleteList will refresh automatically due to its internal logic
+    setEditingAthlete(null);
+    // Refresh the athlete list
+    athleteListRef.current?.refresh();
   };
 
   // Handle modal close
   const handleModalClose = () => {
     setIsModalOpen(false);
+    setEditingAthlete(null);
   };
 
   // Refresh athlete list
   const refreshAthletes = useCallback(() => {
-    // This will be passed to AthleteList for refresh functionality
+    athleteListRef.current?.refresh();
   }, []);
 
   // Show loading state if club is loading
@@ -86,7 +122,11 @@ export default function AthletesPage() {
         title="Athletes"
         desc="Manage your club's athlete roster and information"
       >
-        <AthleteList onRefresh={refreshAthletes} />
+        <AthleteList
+          ref={athleteListRef}
+          onEdit={handleEdit}
+          onRefresh={refreshAthletes}
+        />
       </ComponentCard>
 
       {/* Athlete Modal */}
@@ -94,6 +134,7 @@ export default function AthletesPage() {
         isOpen={isModalOpen}
         onClose={handleModalClose}
         onSuccess={handleAthleteSaved}
+        athlete={editingAthlete}
       />
     </div>
   );

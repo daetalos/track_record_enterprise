@@ -27,6 +27,11 @@ vi.mock('@/icons', () => ({
       delete
     </div>
   ),
+  GroupIcon: ({ className }: { className?: string }) => (
+    <div className={className} data-testid="group-icon">
+      group
+    </div>
+  ),
 }));
 
 // Mock Button component to avoid complex dependencies
@@ -357,8 +362,9 @@ describe('AthleteList', () => {
     });
 
     await waitFor(() => {
+      expect(screen.getByText('No Athletes Found')).toBeInTheDocument();
       expect(
-        screen.getByText('No athletes found. Add some athletes to get started.')
+        screen.getByText('Get started by adding your first athlete.')
       ).toBeInTheDocument();
     });
   });

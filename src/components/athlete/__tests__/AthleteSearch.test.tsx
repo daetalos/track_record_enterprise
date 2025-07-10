@@ -1,6 +1,6 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { vi, describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { AthleteSearch } from '../AthleteSearch';
 
 describe('AthleteSearch', () => {
@@ -10,125 +10,135 @@ describe('AthleteSearch', () => {
     vi.clearAllMocks();
   });
 
-  it('should render search input with correct placeholder', () => {
+  it('renders search input with correct placeholder', () => {
     render(
-      <AthleteSearch
-        onSearch={mockOnSearch}
-        searchTerm=""
-        placeholder="Search athletes..."
-      />
+      <AthleteSearch onSearch={mockOnSearch} placeholder="Search athletes..." />
     );
 
-    const searchInput = screen.getByLabelText('Search athletes');
+    const searchInput = screen.getByRole('searchbox');
     expect(searchInput).toBeInTheDocument();
     expect(searchInput).toHaveAttribute('placeholder', 'Search athletes...');
   });
 
-  it('should use default placeholder when none provided', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="" />);
+  it('uses default placeholder when none provided', () => {
+    render(<AthleteSearch onSearch={mockOnSearch} />);
 
-    const searchInput = screen.getByLabelText('Search athletes');
+    const searchInput = screen.getByRole('searchbox');
     expect(searchInput).toHaveAttribute(
       'placeholder',
       'Search athletes by name...'
     );
   });
 
-  it('should display initial search term value', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="John" />);
+  it('displays initial value when provided', () => {
+    render(<AthleteSearch onSearch={mockOnSearch} initialValue="John" />);
 
-    const searchInput = screen.getByLabelText('Search athletes');
+    const searchInput = screen.getByRole('searchbox');
     expect(searchInput).toHaveValue('John');
   });
 
-  it('should call onSearch when input value changes', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="" />);
+  it('calls onSearch when user types', async () => {
+    const user = userEvent.setup();
+    render(<AthleteSearch onSearch={mockOnSearch} />);
 
-    const searchInput = screen.getByLabelText('Search athletes');
-    fireEvent.change(searchInput, { target: { value: 'John' } });
+    const searchInput = screen.getByRole('searchbox');
+    await user.type(searchInput, 'John');
 
+    expect(mockOnSearch).toHaveBeenCalledWith('J');
+    expect(mockOnSearch).toHaveBeenCalledWith('Jo');
+    expect(mockOnSearch).toHaveBeenCalledWith('Joh');
     expect(mockOnSearch).toHaveBeenCalledWith('John');
+    expect(mockOnSearch).toHaveBeenCalledTimes(4);
   });
 
-  it('should update input value on change', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="" />);
+  it('updates input value when user types', async () => {
+    const user = userEvent.setup();
+    render(<AthleteSearch onSearch={mockOnSearch} />);
 
-    const searchInput = screen.getByLabelText('Search athletes');
-    fireEvent.change(searchInput, { target: { value: 'John' } });
+    const searchInput = screen.getByRole('searchbox');
+    await user.type(searchInput, 'John');
 
     expect(searchInput).toHaveValue('John');
   });
 
-  it('should show clear button when input has value', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="John" />);
+  it('shows clear button when input has value', async () => {
+    const user = userEvent.setup();
+    render(<AthleteSearch onSearch={mockOnSearch} />);
+
+    const searchInput = screen.getByRole('searchbox');
+    await user.type(searchInput, 'John');
 
     const clearButton = screen.getByLabelText('Clear search');
     expect(clearButton).toBeInTheDocument();
   });
 
-  it('should not show clear button when input is empty', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="" />);
+  it('hides clear button when input is empty', () => {
+    render(<AthleteSearch onSearch={mockOnSearch} />);
 
     const clearButton = screen.queryByLabelText('Clear search');
     expect(clearButton).not.toBeInTheDocument();
   });
 
-  it('should clear input and call onSearch with empty string when clear button is clicked', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="John" />);
+  it('clears input and calls onSearch with empty string when clear button is clicked', async () => {
+    const user = userEvent.setup();
+    render(<AthleteSearch onSearch={mockOnSearch} />);
+
+    const searchInput = screen.getByRole('searchbox');
+    await user.type(searchInput, 'John');
 
     const clearButton = screen.getByLabelText('Clear search');
-    fireEvent.click(clearButton);
+    await user.click(clearButton);
 
-    const searchInput = screen.getByLabelText('Search athletes');
     expect(searchInput).toHaveValue('');
-    expect(mockOnSearch).toHaveBeenCalledWith('');
+    expect(mockOnSearch).toHaveBeenLastCalledWith('');
   });
 
-  it('should handle multiple search term changes', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="" />);
+  it('handles progressive search typing correctly', async () => {
+    const user = userEvent.setup();
+    render(<AthleteSearch onSearch={mockOnSearch} />);
 
-    const searchInput = screen.getByLabelText('Search athletes');
+    const searchInput = screen.getByRole('searchbox');
 
-    fireEvent.change(searchInput, { target: { value: 'J' } });
-    expect(mockOnSearch).toHaveBeenCalledWith('J');
+    await user.type(searchInput, 'John');
 
-    fireEvent.change(searchInput, { target: { value: 'Jo' } });
-    expect(mockOnSearch).toHaveBeenCalledWith('Jo');
-
-    fireEvent.change(searchInput, { target: { value: 'John' } });
-    expect(mockOnSearch).toHaveBeenCalledWith('John');
-
-    expect(mockOnSearch).toHaveBeenCalledTimes(3);
+    expect(mockOnSearch).toHaveBeenNthCalledWith(1, 'J');
+    expect(mockOnSearch).toHaveBeenNthCalledWith(2, 'Jo');
+    expect(mockOnSearch).toHaveBeenNthCalledWith(3, 'Joh');
+    expect(mockOnSearch).toHaveBeenNthCalledWith(4, 'John');
+    expect(mockOnSearch).toHaveBeenCalledTimes(4);
   });
 
-  it('should handle empty string search', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="John" />);
+  it('handles clearing search via backspace', async () => {
+    const user = userEvent.setup();
+    render(<AthleteSearch onSearch={mockOnSearch} initialValue="Test" />);
 
-    const searchInput = screen.getByLabelText('Search athletes');
-    fireEvent.change(searchInput, { target: { value: '' } });
+    const searchInput = screen.getByRole('searchbox');
 
-    expect(mockOnSearch).toHaveBeenCalledWith('');
+    // Clear the input by selecting all and deleting
+    await user.clear(searchInput);
+
     expect(searchInput).toHaveValue('');
+    expect(mockOnSearch).toHaveBeenLastCalledWith('');
   });
 
-  it('should show search icon', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="" />);
+  it('maintains search functionality with whitespace', async () => {
+    const user = userEvent.setup();
+    render(<AthleteSearch onSearch={mockOnSearch} />);
 
-    // Check for the search icon SVG
-    const searchIcon = screen
-      .getByLabelText('Search athletes')
-      .closest('div')
-      ?.querySelector('svg');
-    expect(searchIcon).toBeInTheDocument();
-  });
+    const searchInput = screen.getByRole('searchbox');
+    await user.type(searchInput, '  John  ');
 
-  it('should handle whitespace in search terms', () => {
-    render(<AthleteSearch onSearch={mockOnSearch} searchTerm="" />);
-
-    const searchInput = screen.getByLabelText('Search athletes');
-    fireEvent.change(searchInput, { target: { value: '  John  ' } });
-
-    expect(mockOnSearch).toHaveBeenCalledWith('  John  ');
+    expect(mockOnSearch).toHaveBeenLastCalledWith('  John  ');
     expect(searchInput).toHaveValue('  John  ');
+  });
+
+  it('displays search icon', () => {
+    render(<AthleteSearch onSearch={mockOnSearch} />);
+
+    // Check for the search icon by looking for the SVG
+    const searchIcon = screen
+      .getByRole('searchbox')
+      .parentElement?.querySelector('svg');
+    expect(searchIcon).toBeInTheDocument();
   });
 });

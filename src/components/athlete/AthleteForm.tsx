@@ -17,24 +17,47 @@ interface AthleteFormProps {
   onSuccess?: (athlete: AthleteWithRelations) => void;
   onCancel?: () => void;
   className?: string;
+  athlete?: AthleteWithRelations | null;
 }
 
 const AthleteForm: React.FC<AthleteFormProps> = ({
   onSuccess,
   onCancel,
   className,
+  athlete,
 }) => {
+  const isEditing = !!athlete;
   const { selectedClub } = useClub();
   const [formData, setFormData] = useState<CreateAthleteData>({
     firstName: '',
     lastName: '',
     genderId: '',
+    ageGroupId: '',
   });
   const [genders, setGenders] = useState<Gender[]>([]);
   const [errors, setErrors] = useState<AthleteValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingGenders, setIsLoadingGenders] = useState(true);
   const [successMessage, setSuccessMessage] = useState<string>('');
+
+  // Initialize form data when editing
+  useEffect(() => {
+    if (athlete) {
+      setFormData({
+        firstName: athlete.firstName,
+        lastName: athlete.lastName,
+        genderId: athlete.gender.id,
+        ageGroupId: athlete.ageGroup?.id || '',
+      });
+    } else {
+      setFormData({
+        firstName: '',
+        lastName: '',
+        genderId: '',
+        ageGroupId: '',
+      });
+    }
+  }, [athlete]);
 
   // Fetch genders on component mount
   useEffect(() => {
@@ -102,15 +125,25 @@ const AthleteForm: React.FC<AthleteFormProps> = ({
     setErrors({});
 
     try {
-      const response = await fetch('/api/athletes', {
-        method: 'POST',
+      const url = isEditing ? `/api/athletes/${athlete.id}` : '/api/athletes';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      // Prepare request data, filtering out empty ageGroupId
+      const baseData = { ...formData };
+      if (baseData.ageGroupId === '') {
+        delete baseData.ageGroupId;
+      }
+
+      const requestData = isEditing
+        ? baseData
+        : { ...baseData, clubId: selectedClub.id };
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          clubId: selectedClub.id,
-        }),
+        body: JSON.stringify(requestData),
       });
 
       const data = await response.json();
@@ -133,31 +166,41 @@ const AthleteForm: React.FC<AthleteFormProps> = ({
           );
           setErrors(apiErrors);
         } else {
-          setErrors({ general: data.error || 'Failed to create athlete' });
+          setErrors({
+            general:
+              data.error ||
+              `Failed to ${isEditing ? 'update' : 'create'} athlete`,
+          });
         }
         return;
       }
 
       // Success
       setSuccessMessage(
-        `Athlete "${data.data.firstName} ${data.data.lastName}" created successfully!`
+        `Athlete "${data.data.firstName} ${data.data.lastName}" ${isEditing ? 'updated' : 'created'} successfully!`
       );
 
       if (onSuccess) {
         onSuccess(data.data);
       }
 
-      // Reset form
-      setFormData({
-        firstName: '',
-        lastName: '',
-        genderId: '',
-      });
+      // Reset form only if creating
+      if (!isEditing) {
+        setFormData({
+          firstName: '',
+          lastName: '',
+          genderId: '',
+          ageGroupId: '',
+        });
+      }
 
       // Clear success message after 5 seconds
       setTimeout(() => setSuccessMessage(''), 5000);
     } catch (error) {
-      console.error('Error creating athlete:', error);
+      console.error(
+        `Error ${isEditing ? 'updating' : 'creating'} athlete:`,
+        error
+      );
       setErrors({ general: 'Network error. Please try again.' });
     } finally {
       setIsLoading(false);
@@ -280,8 +323,10 @@ const AthleteForm: React.FC<AthleteFormProps> = ({
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border border-white rounded-full animate-spin border-t-transparent"></div>
-                  Creating...
+                  {isEditing ? 'Updating...' : 'Creating...'}
                 </>
+              ) : isEditing ? (
+                'Update Athlete'
               ) : (
                 'Create Athlete'
               )}

@@ -18,7 +18,12 @@ const UpdateAthleteSchema = z.object({
     .max(64, 'Last name must be 64 characters or less')
     .optional(),
   genderId: z.string().min(1, 'Gender is required').optional(),
-  ageGroupId: z.string().optional(),
+  ageGroupId: z
+    .string()
+    .min(1)
+    .optional()
+    .or(z.literal(''))
+    .transform(val => (val === '' ? null : val)),
 });
 
 /**
@@ -201,17 +206,20 @@ export async function PUT(
     }
 
     // Verify age group exists and belongs to the club if being updated
-    if (updateData.ageGroupId) {
-      const ageGroup = await prisma.ageGroup.findUnique({
-        where: { id: updateData.ageGroupId },
-      });
+    if (updateData.ageGroupId !== undefined) {
+      if (updateData.ageGroupId !== null) {
+        const ageGroup = await prisma.ageGroup.findUnique({
+          where: { id: updateData.ageGroupId },
+        });
 
-      if (!ageGroup || ageGroup.clubId !== existingAthlete.clubId) {
-        return NextResponse.json(
-          { error: 'Invalid age group selected' },
-          { status: 400 }
-        );
+        if (!ageGroup || ageGroup.clubId !== existingAthlete.clubId) {
+          return NextResponse.json(
+            { error: 'Invalid age group selected' },
+            { status: 400 }
+          );
+        }
       }
+      // If ageGroupId is null, that's valid (means no age group assigned)
     }
 
     // Update the athlete
