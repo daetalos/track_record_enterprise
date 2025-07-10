@@ -21,11 +21,15 @@ export class AthletePage {
    * Verify the athlete creation form is displayed
    */
   async expectCreateFormVisible() {
-    await expect(this.page.getByRole('heading', { name: 'Create New Athlete' })).toBeVisible();
+    await expect(
+      this.page.getByRole('heading', { name: 'Create New Athlete' })
+    ).toBeVisible();
     await expect(this.page.getByLabel('First Name')).toBeVisible();
     await expect(this.page.getByLabel('Last Name')).toBeVisible();
     await expect(this.page.getByLabel('Gender')).toBeVisible();
-    await expect(this.page.getByRole('button', { name: 'Create Athlete' })).toBeVisible();
+    await expect(
+      this.page.getByRole('button', { name: 'Create Athlete' })
+    ).toBeVisible();
   }
 
   /**
@@ -34,9 +38,11 @@ export class AthletePage {
   async fillCreateForm(firstName: string, lastName: string, gender: string) {
     await this.page.getByLabel('First Name').fill(firstName);
     await this.page.getByLabel('Last Name').fill(lastName);
-    
+
     // Select gender from dropdown - use locator method for select element
-    await this.page.locator('select[name="genderId"]').selectOption({ label: gender });
+    await this.page
+      .locator('select[name="genderId"]')
+      .selectOption({ label: gender });
   }
 
   /**
@@ -59,7 +65,9 @@ export class AthletePage {
    */
   async expectCreateSuccess(firstName: string, lastName: string) {
     await expect(
-      this.page.getByText(`Athlete "${firstName} ${lastName}" created successfully!`)
+      this.page.getByText(
+        `Athlete "${firstName} ${lastName}" created successfully!`
+      )
     ).toBeVisible();
   }
 
@@ -74,17 +82,19 @@ export class AthletePage {
    * Verify form field validation errors
    */
   async expectFieldRequired(fieldName: string) {
-    await expect(
-      this.page.getByText(`${fieldName} is required`)
-    ).toBeVisible();
+    await expect(this.page.getByText(`${fieldName} is required`)).toBeVisible();
   }
 
   /**
    * Verify loading state
    */
   async expectFormLoading() {
-    await expect(this.page.getByRole('button', { name: 'Creating...' })).toBeVisible();
-    await expect(this.page.getByRole('button', { name: 'Creating...' })).toBeDisabled();
+    await expect(
+      this.page.getByRole('button', { name: 'Creating...' })
+    ).toBeVisible();
+    await expect(
+      this.page.getByRole('button', { name: 'Creating...' })
+    ).toBeDisabled();
   }
 
   /**
@@ -122,4 +132,4 @@ export class AthletePage {
       console.log(`Field error ${i + 1}:`, errorText);
     }
   }
-} 
+}

@@ -65,7 +65,9 @@ export class ClubPage {
    */
   async expectClubSelected(clubName: string) {
     // Look for club name in header area - could be in club selector button or display text
-    const clubText = this.page.locator('header').getByText(clubName, { exact: false });
+    const clubText = this.page
+      .locator('header')
+      .getByText(clubName, { exact: false });
     await expect(clubText).toBeVisible({ timeout: 10000 });
   }
 
@@ -77,7 +79,9 @@ export class ClubPage {
    */
   async isClubSelected(clubName: string): Promise<boolean> {
     try {
-      const clubText = this.page.locator('header').getByText(clubName, { exact: false });
+      const clubText = this.page
+        .locator('header')
+        .getByText(clubName, { exact: false });
       await expect(clubText).toBeVisible({ timeout: 2000 });
       return true;
     } catch {
