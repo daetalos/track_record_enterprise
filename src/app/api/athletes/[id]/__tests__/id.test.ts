@@ -45,7 +45,7 @@ const createMockPutRequest = (body: Record<string, unknown>) =>
     json: () => Promise.resolve(body),
   }) as NextRequest;
 
-const createMockParams = (id: string) => ({ id });
+const createMockParams = (id: string) => Promise.resolve({ id });
 
 describe('/api/athletes/[id]', () => {
   beforeEach(() => {
