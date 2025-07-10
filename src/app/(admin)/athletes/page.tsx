@@ -1,15 +1,36 @@
 'use client';
 
-import React from 'react';
-import Link from 'next/link';
+import React, { useState, useCallback } from 'react';
 import { useClub } from '@/context/ClubContext';
 import ComponentCard from '@/components/common/ComponentCard';
 import Button from '@/components/ui/button/Button';
-import { AthleteList } from '@/components/athlete';
+import { AthleteList, AthleteModal } from '@/components/athlete';
 import { PlusIcon } from '@/icons';
 
 export default function AthletesPage() {
   const { selectedClub, isLoading: clubLoading } = useClub();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Handle creating new athlete
+  const handleCreate = () => {
+    setIsModalOpen(true);
+  };
+
+  // Handle athlete saved (created)
+  const handleAthleteSaved = () => {
+    setIsModalOpen(false);
+    // The AthleteList will refresh automatically due to its internal logic
+  };
+
+  // Handle modal close
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+  };
+
+  // Refresh athlete list
+  const refreshAthletes = useCallback(() => {
+    // This will be passed to AthleteList for refresh functionality
+  }, []);
 
   // Show loading state if club is loading
   if (clubLoading) {
@@ -51,14 +72,13 @@ export default function AthletesPage() {
             Manage athletes for {selectedClub.name}
           </p>
         </div>
-        <Link href="/athletes/new">
-          <Button
-            startIcon={<PlusIcon className="w-4 h-4" />}
-            className="shrink-0"
-          >
-            Add Athlete
-          </Button>
-        </Link>
+        <Button
+          onClick={handleCreate}
+          startIcon={<PlusIcon className="w-4 h-4" />}
+          className="shrink-0"
+        >
+          Add Athlete
+        </Button>
       </div>
 
       {/* Athletes Table */}
@@ -66,8 +86,15 @@ export default function AthletesPage() {
         title="Athletes"
         desc="Manage your club's athlete roster and information"
       >
-        <AthleteList />
+        <AthleteList onRefresh={refreshAthletes} />
       </ComponentCard>
+
+      {/* Athlete Modal */}
+      <AthleteModal
+        isOpen={isModalOpen}
+        onClose={handleModalClose}
+        onSuccess={handleAthleteSaved}
+      />
     </div>
   );
 }
