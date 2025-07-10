@@ -218,7 +218,7 @@ export function AthleteList({ onEdit, onRefresh }: AthleteListProps = {}) {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={1}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6M36 6v6m0 0v6m0-6h6m-6 0h-6M12 36v6m0 0v6m0-6h6m-6 0H6M36 36v6m0 0v6m0-6h6m-6 0h-6"
+                d="M17 20a4 4 0 1 1 8 0 4 4 0 0 1-8 0zM8 34v-1a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v1M32 20a4 4 0 1 1 8 0 4 4 0 0 1-8 0zM28 34v-1a4 4 0 0 1 4-4h8a4 4 0 0 1 4 4v1"
               />
             </svg>
           </div>
@@ -228,7 +228,7 @@ export function AthleteList({ onEdit, onRefresh }: AthleteListProps = {}) {
           <p className="text-gray-500 dark:text-gray-400">
             {searchTerm
               ? `No athletes found matching "${searchTerm}"`
-              : 'No athletes found. Add some athletes to get started.'}
+              : 'Get started by adding your first athlete.'}
           </p>
         </div>
       </div>
