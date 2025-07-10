@@ -28,4 +28,5 @@
 
 export { AuthPage } from './AuthPage';
 export { ClubPage } from './ClubPage';
+export { AthletePage } from './AthletePage';
 export { AppWorkflow } from './AppWorkflow';

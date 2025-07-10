@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 import { AuthPage } from './AuthPage';
 import { ClubPage } from './ClubPage';
+import { AthletePage } from './AthletePage';
 
 /**
  * AppWorkflow - Combined Page Object Model for common app workflows
@@ -18,10 +19,12 @@ import { ClubPage } from './ClubPage';
 export class AppWorkflow {
   readonly auth: AuthPage;
   readonly club: ClubPage;
+  readonly athlete: AthletePage;
 
   constructor(private page: Page) {
     this.auth = new AuthPage(page);
     this.club = new ClubPage(page);
+    this.athlete = new AthletePage(page);
   }
 
   /**
@@ -120,13 +123,25 @@ export class AppWorkflow {
 
   /**
    * Handle the complete athlete management workflow setup
-   * Specialized method for athlete testing (future iterations)
+   * Specialized method for athlete testing
    *
    * @param clubName - Club to select for athlete management
    */
   async setupForAthletes(clubName: string = 'Elite Athletics Club') {
     await this.signInAsAdminWithClub(clubName);
     await this.club.navigateWithClubContext('/athletes', clubName);
+  }
+
+  /**
+   * Navigate to athlete creation with full auth setup
+   * Complete workflow for testing athlete creation
+   *
+   * @param clubName - Club context for athlete creation
+   */
+  async setupForAthleteCreation(clubName: string = 'Elite Athletics Club') {
+    await this.signInAsAdminWithClub(clubName);
+    await this.athlete.goto();
+    await this.club.expectClubSelected(clubName);
   }
 
   /**
