@@ -16,7 +16,8 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import Button from '@/components/ui/button/Button';
-import { PencilIcon, TrashBinIcon, GroupIcon } from '@/icons';
+import { PencilIcon, TrashBinIcon, GroupIcon, EyeIcon } from '@/icons';
+import { useRouter } from 'next/navigation';
 import { AthleteSearch } from './AthleteSearch';
 
 interface Gender {
@@ -62,6 +63,7 @@ export interface AthleteListRef {
 export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
   ({ onEdit, onRefresh }, ref) => {
     const { selectedClub } = useClub();
+    const router = useRouter();
     const [athletes, setAthletes] = useState<Athlete[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -145,6 +147,11 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
     const handlePageChange = (page: number) => {
       setCurrentPage(page);
       fetchAthletes(page, searchTerm);
+    };
+
+    // Handle athlete view
+    const handleView = (athlete: Athlete) => {
+      router.push(`/athletes/${athlete.id}`);
     };
 
     // Handle athlete deletion
@@ -302,6 +309,15 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
                         </TableCell>
                         <TableCell className="px-5 py-4 text-end">
                           <div className="flex items-center justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleView(athlete)}
+                              startIcon={<EyeIcon className="w-4 h-4" />}
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
+                            >
+                              View
+                            </Button>
                             <Button
                               size="sm"
                               variant="outline"
