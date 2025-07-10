@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useClub } from '@/context/ClubContext';
 import Form from '@/components/form/Form';
 import InputField from '@/components/form/input/InputField';
+import Button from '@/components/ui/button/Button';
 
 import type {
   Gender,
@@ -16,24 +17,47 @@ interface AthleteFormProps {
   onSuccess?: (athlete: AthleteWithRelations) => void;
   onCancel?: () => void;
   className?: string;
+  athlete?: AthleteWithRelations | null;
 }
 
 const AthleteForm: React.FC<AthleteFormProps> = ({
   onSuccess,
   onCancel,
   className,
+  athlete,
 }) => {
+  const isEditing = !!athlete;
   const { selectedClub } = useClub();
   const [formData, setFormData] = useState<CreateAthleteData>({
     firstName: '',
     lastName: '',
     genderId: '',
+    ageGroupId: '',
   });
   const [genders, setGenders] = useState<Gender[]>([]);
   const [errors, setErrors] = useState<AthleteValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingGenders, setIsLoadingGenders] = useState(true);
   const [successMessage, setSuccessMessage] = useState<string>('');
+
+  // Initialize form data when editing
+  useEffect(() => {
+    if (athlete) {
+      setFormData({
+        firstName: athlete.firstName,
+        lastName: athlete.lastName,
+        genderId: athlete.gender.id,
+        ageGroupId: athlete.ageGroup?.id || '',
+      });
+    } else {
+      setFormData({
+        firstName: '',
+        lastName: '',
+        genderId: '',
+        ageGroupId: '',
+      });
+    }
+  }, [athlete]);
 
   // Fetch genders on component mount
   useEffect(() => {
@@ -101,15 +125,25 @@ const AthleteForm: React.FC<AthleteFormProps> = ({
     setErrors({});
 
     try {
-      const response = await fetch('/api/athletes', {
-        method: 'POST',
+      const url = isEditing ? `/api/athletes/${athlete.id}` : '/api/athletes';
+      const method = isEditing ? 'PUT' : 'POST';
+
+      // Prepare request data, filtering out empty ageGroupId
+      const baseData = { ...formData };
+      if (baseData.ageGroupId === '') {
+        delete baseData.ageGroupId;
+      }
+
+      const requestData = isEditing
+        ? baseData
+        : { ...baseData, clubId: selectedClub.id };
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          ...formData,
-          clubId: selectedClub.id,
-        }),
+        body: JSON.stringify(requestData),
       });
 
       const data = await response.json();
@@ -132,31 +166,41 @@ const AthleteForm: React.FC<AthleteFormProps> = ({
           );
           setErrors(apiErrors);
         } else {
-          setErrors({ general: data.error || 'Failed to create athlete' });
+          setErrors({
+            general:
+              data.error ||
+              `Failed to ${isEditing ? 'update' : 'create'} athlete`,
+          });
         }
         return;
       }
 
       // Success
       setSuccessMessage(
-        `Athlete "${data.data.firstName} ${data.data.lastName}" created successfully!`
+        `Athlete "${data.data.firstName} ${data.data.lastName}" ${isEditing ? 'updated' : 'created'} successfully!`
       );
 
       if (onSuccess) {
         onSuccess(data.data);
       }
 
-      // Reset form
-      setFormData({
-        firstName: '',
-        lastName: '',
-        genderId: '',
-      });
+      // Reset form only if creating
+      if (!isEditing) {
+        setFormData({
+          firstName: '',
+          lastName: '',
+          genderId: '',
+          ageGroupId: '',
+        });
+      }
 
       // Clear success message after 5 seconds
       setTimeout(() => setSuccessMessage(''), 5000);
     } catch (error) {
-      console.error('Error creating athlete:', error);
+      console.error(
+        `Error ${isEditing ? 'updating' : 'creating'} athlete:`,
+        error
+      );
       setErrors({ general: 'Network error. Please try again.' });
     } finally {
       setIsLoading(false);
@@ -265,32 +309,28 @@ const AthleteForm: React.FC<AthleteFormProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+            {onCancel && (
+              <Button variant="outline" onClick={onCancel} disabled={isLoading}>
+                Cancel
+              </Button>
+            )}
             <button
               type="submit"
               disabled={isLoading}
-              className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-medium bg-brand-500 text-white rounded-lg shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed disabled:opacity-50 transition"
+              className="inline-flex items-center justify-center font-medium gap-2 rounded-lg transition px-5 py-3.5 text-sm bg-brand-500 text-white shadow-theme-xs hover:bg-brand-600 disabled:bg-brand-300 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
                   <div className="w-4 h-4 border border-white rounded-full animate-spin border-t-transparent"></div>
-                  Creating...
+                  {isEditing ? 'Updating...' : 'Creating...'}
                 </>
+              ) : isEditing ? (
+                'Update Athlete'
               ) : (
                 'Create Athlete'
               )}
             </button>
-
-            {onCancel && (
-              <button
-                type="button"
-                onClick={onCancel}
-                disabled={isLoading}
-                className="flex-1 inline-flex items-center justify-center gap-2 px-5 py-3.5 text-sm font-medium bg-white text-gray-700 rounded-lg ring-1 ring-inset ring-gray-300 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 transition dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300"
-              >
-                Cancel
-              </button>
-            )}
           </div>
         </div>
       </Form>

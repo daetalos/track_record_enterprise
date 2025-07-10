@@ -4,16 +4,22 @@ import React, { useState, useCallback } from 'react';
 
 interface AthleteSearchProps {
   onSearch: (searchTerm: string) => void;
-  searchTerm: string;
   placeholder?: string;
+  initialValue?: string;
 }
 
 export function AthleteSearch({
   onSearch,
-  searchTerm,
+  initialValue = '',
   placeholder = 'Search athletes by name...',
 }: AthleteSearchProps) {
-  const [inputValue, setInputValue] = useState(searchTerm);
+  const [inputValue, setInputValue] = useState(initialValue);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  // Sync internal state with initialValue when it changes externally
+  React.useEffect(() => {
+    setInputValue(initialValue);
+  }, [initialValue]);
 
   // Debounced search handler
   const handleSearch = useCallback(
@@ -38,9 +44,9 @@ export function AthleteSearch({
 
   return (
     <div className="relative">
-      <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+      <span className="absolute -translate-y-1/2 left-4 top-1/2 pointer-events-none">
         <svg
-          className="h-5 w-5 text-gray-400"
+          className="fill-gray-500 dark:fill-gray-400"
           width="20"
           height="20"
           viewBox="0 0 20 20"
@@ -55,37 +61,37 @@ export function AthleteSearch({
             fill="currentColor"
           />
         </svg>
-      </div>
+      </span>
       <input
-        type="text"
+        ref={inputRef}
+        type="search"
+        role="searchbox"
         value={inputValue}
         onChange={handleInputChange}
-        className="block w-full rounded-md border-gray-300 bg-white pl-10 pr-10 text-sm placeholder-gray-500 focus:border-primary-500 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-primary-400 dark:focus:ring-primary-400"
+        className="h-11 w-full rounded-lg border border-gray-200 bg-transparent py-2.5 pl-12 pr-14 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-gray-900 dark:bg-white/[0.03] dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800"
         placeholder={placeholder}
         aria-label="Search athletes"
       />
       {inputValue && (
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-          <button
-            onClick={handleClear}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
-            aria-label="Clear search"
+        <button
+          onClick={handleClear}
+          className="absolute right-2.5 top-1/2 inline-flex -translate-y-1/2 items-center gap-0.5 rounded-lg border border-gray-200 bg-gray-50 px-[7px] py-[4.5px] text-xs -tracking-[0.2px] text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/[0.05]"
+          aria-label="Clear search"
+        >
+          <svg
+            className="h-3 w-3"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
-        </div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
       )}
     </div>
   );
