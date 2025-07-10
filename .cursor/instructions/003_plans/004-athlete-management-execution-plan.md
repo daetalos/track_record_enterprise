@@ -8,6 +8,7 @@
 - **Overall Progress**: 25% Complete (2 of 8 iterations completed)
 - **Last Session Date**: January 10, 2025
 - **Status**: Iteration 1B completed successfully with E2E test fixes - Ready for Iteration 1C (Age Group Admin UI)
+- **Testing Strategy**: Updated to use new Playwright testing standards with incremental development
 
 ### **Iteration Progress Summary**
 
@@ -247,6 +248,16 @@ docker-compose logs web --tail=50  # Check for deployment errors
 docker-compose down
 ```
 
+### **Step 6.75: Update Execution Plan**
+
+```powershell
+# Update progress tracking dashboard in execution plan
+# Mark current iteration as completed
+# Update completion criteria status
+# Document any changes or deviations from original plan
+# Commit plan updates before creating PR
+```
+
 ### **Step 7: Create PR & Merge (From git-standards.mdc)**
 
 ```powershell
@@ -373,25 +384,25 @@ docker-compose up --build -d
 docker-compose down
 ```
 
-### **Step 6.6: E2E Test Fixes** ✅
+### **Step 6.6: E2E Test Updates with Playwright Standards** ✅
 
-**Problem**: E2E tests failing due to authentication and club selection issues
-**Solution**: Fixed authentication credentials and club selection logic in test suite
+**Previous Approach**: Basic E2E test fixes with CSS selectors and authentication patches
+**New Approach**: Implementing comprehensive Playwright testing standards for future UI iterations
 
-**Fixed E2E Tests**:
+**Legacy Test Status** (Iteration 1B):
 
 - `tests/basic-functionality.spec.ts` - Basic auth & navigation (5 tests passing)
 - `tests/age-group-modal.spec.ts` - Age group modal functionality (2 tests passing)
 - `tests/age-group-management.spec.ts` - Age group management (1 test passing)
+- **Test Results**: 8/8 E2E tests passing with temporary fixes
 
-**Key Fixes Applied**:
+**Future UI Testing Strategy** (Iterations 1C+):
 
-- Corrected authentication credentials (`admin@trackrecord.dev`/`password123`)
-- Fixed button selector specificity using `{ exact: true }` for "Sign In" button
-- Implemented proper club selection logic using header club selector
-- Established working authentication and club selection patterns for future tests
-
-**Test Results**: 8/8 E2E tests now passing consistently across Chrome
+- Apply `playwright-testing-standards.mdc` for all new UI components
+- Use incremental "one test at a time" development process
+- Implement semantic locators (`getByRole`, `getByLabel`, `getByText`)
+- Create Page Object Models for complex workflows
+- Replace arbitrary timeouts with proper waiting strategies
 
 ### **Step 7: Create PR & Merge**
 
@@ -594,6 +605,29 @@ npm run build          # Verify compilation - MUST PASS
 - ClubContext integration tests
 - Error handling and validation tests
 
+### **Step 5.5: Playwright E2E Test Development (Following playwright-testing-standards.mdc)**
+
+**Incremental E2E Development Process**:
+
+```powershell
+# Start with ONE test skeleton
+npx playwright test --grep "specific test name" --debug
+
+# Use UI mode for visual development
+npx playwright test --ui
+
+# Generate semantic selectors
+npx playwright codegen localhost:3000
+```
+
+**E2E Test Implementation**:
+
+- Follow "one test at a time" development process
+- Use semantic locators (`getByRole`, `getByLabel`, `getByText`) instead of CSS selectors
+- Create Page Object Models for authentication and club selection workflows
+- Implement proper waiting strategies (no arbitrary timeouts)
+- Test each component addition before proceeding to next feature
+
 ### **Step 6: Test Release (Level 3 - Full Validation)**
 
 ```powershell
@@ -674,9 +708,18 @@ src/components/age-group/
 
 - **Component Tests**: Form validation, table interactions, modal workflows
 - **Integration Tests**: ClubContext integration, API communication, permission checks
+- **E2E Tests (Playwright)**: Follow `playwright-testing-standards.mdc` with semantic locators and Page Object Models
 - **Accessibility Tests**: Screen reader compatibility, keyboard navigation
 - **Responsive Tests**: Mobile and tablet layout validation
 - **Coverage Goal**: 90%+ test coverage for new UI functionality
+
+**Playwright E2E Testing Requirements**:
+
+- Create Page Object Models for AgeGroupPage, AuthPage workflows
+- Use semantic locators: `page.getByRole('button', { name: 'Create Age Group' })`
+- Implement incremental test development (one test at a time)
+- No arbitrary timeouts - use proper Playwright waiting strategies
+- Debug each test step before proceeding to next component
 
 **TypeScript Quality Standards**:
 
@@ -743,6 +786,14 @@ interface AgeGroupFormState {
 - [ ] Age group creation, editing, and deletion functional in browser
 - [ ] Club isolation working correctly in UI
 - [ ] Performance acceptable on mobile devices
+
+**E2E Testing Validation (Playwright Standards)**:
+
+- [ ] Page Object Models implemented for AgeGroupPage and AuthPage workflows
+- [ ] E2E tests use semantic locators exclusively (`getByRole`, `getByLabel`, `getByText`)
+- [ ] Tests developed incrementally using "one test at a time" approach
+- [ ] No arbitrary `waitForTimeout()` usage - proper Playwright waiting strategies implemented
+- [ ] E2E test suite runs reliably in `--debug` and `--ui` modes
 
 **Code Quality Standards**:
 
@@ -965,7 +1016,16 @@ gh pr create --title "feat(athlete): implement athlete creation interface with v
 
 - **Component Tests**: Form rendering, validation, submission, ClubContext integration
 - **Integration Tests**: End-to-end athlete creation flow
+- **E2E Tests (Playwright)**: Follow `playwright-testing-standards.mdc` with incremental development
 - **Coverage Goal**: 100% test coverage for new UI functionality
+
+**Playwright E2E Testing Requirements**:
+
+- Create AthleteCreationPage Object Model extending existing AuthPage patterns
+- Use semantic locators: `page.getByRole('textbox', { name: 'First Name' })`
+- Test athlete creation workflow incrementally (form → validation → submission)
+- Implement proper waiting for form submission and success feedback
+- No CSS selectors - use `getByLabel`, `getByRole`, `getByText` exclusively
 
 ### **🎯 ITERATION 2B COMPLETION CRITERIA**
 
@@ -1079,7 +1139,16 @@ gh pr create --title "feat(athlete): implement basic search and listing function
 
 - **API Tests**: Search endpoint functionality, basic filtering
 - **Component Tests**: Search inputs, result display, basic pagination
+- **E2E Tests (Playwright)**: Follow `playwright-testing-standards.mdc` for search workflows
 - **Coverage Goal**: 100% test coverage for basic search functionality
+
+**Playwright E2E Testing Requirements**:
+
+- Create AthleteSearchPage Object Model for search and listing workflows
+- Use semantic locators: `page.getByRole('searchbox', { name: 'Search athletes' })`
+- Test search functionality incrementally (input → results → pagination)
+- Implement proper waiting for search results and loading states
+- Debug each search interaction before adding pagination tests
 
 ### **🎯 ITERATION 3A COMPLETION CRITERIA**
 
@@ -1192,7 +1261,15 @@ gh pr create --title "feat(athlete): implement advanced search features and opti
 - **Component Tests**: AJAX functionality, advanced filtering
 - **Hook Tests**: Search state management, debouncing
 - **Performance Tests**: Search optimization validation
-- **E2E Tests**: Complete advanced search workflow
+- **E2E Tests (Playwright)**: Follow `playwright-testing-standards.mdc` for advanced search workflows
+
+**Playwright E2E Testing Requirements**:
+
+- Extend AthleteSearchPage Object Model with advanced filtering methods
+- Use semantic locators for filters: `page.getByRole('combobox', { name: 'Filter by gender' })`
+- Test AJAX search incrementally (input → debouncing → results → filters)
+- Implement proper waiting for dynamic content updates
+- Test advanced filtering combinations using semantic selectors only
 
 ### **🎯 ITERATION 3B COMPLETION CRITERIA**
 
@@ -1309,8 +1386,17 @@ gh pr create --title "feat(athlete): implement detail views and complete integra
 - **Component Tests**: Detail page rendering and data display
 - **Navigation Tests**: Routing and breadcrumb functionality
 - **Integration Tests**: Complete athlete management workflow
-- **E2E Tests**: Full user journey from creation to detail viewing
+- **E2E Tests (Playwright)**: Follow `playwright-testing-standards.mdc` for complete user journey
 - **Responsive Tests**: Mobile and tablet layout validation
+
+**Playwright E2E Testing Requirements**:
+
+- Create AthleteDetailPage Object Model for profile viewing workflows
+- Create comprehensive AppWorkflow Object Model combining all athlete management POMs
+- Use semantic locators for navigation: `page.getByRole('link', { name: 'View athlete profile' })`
+- Test complete user journey incrementally (creation → search → detail view)
+- Implement proper navigation testing with breadcrumbs using semantic selectors
+- Final integration testing of all Page Object Models working together
 
 ### **🎯 ITERATION 4 COMPLETION CRITERIA**
 
@@ -1347,8 +1433,9 @@ gh pr create --title "feat(athlete): implement detail views and complete integra
 6. **Test L2** → `npm run test:coverage && npm run build`
 7. **Test L3** → `npm run test:all && npm run validate:pre-docker`
 8. **Docker Validation** → `docker-compose up --build -d` + feature testing
-9. **Create PR** → Push branch and create detailed pull request
-10. **Update Progress** → Mark iteration completed in dashboard
+9. **E2E Testing (UI Iterations)** → Apply `playwright-testing-standards.mdc` incrementally
+10. **Update Execution Plan** → Mark iteration completed, update progress dashboard
+11. **Create PR** → Push branch and create detailed pull request
 
 ### **Quality Gates (4-Level Testing Pyramid)**
 
@@ -1380,9 +1467,69 @@ If issues occur during an iteration:
 - **Database**: `db-schema-standards.mdc`, `db-client-standards.mdc`
 - **API**: `typescript-nextjs-standards.mdc`, `nextjs-structure-standards.mdc`
 - **UI**: `ui-tailwind-css-standards.mdc`, `dashboard-ui-patterns.mdc`
-- **Testing**: `bp-testing-standards.mdc`
+- **Testing**: `bp-testing-standards.mdc`, `playwright-testing-standards.mdc`
 - **Security**: `bp-security-standards.mdc`
 - **Git**: `git-standards.mdc`
+
+### **Playwright Testing Standards Integration**
+
+**Applied to all UI iterations (1C, 2B, 3A, 3B, 4):**
+
+**Core Principles from `playwright-testing-standards.mdc`:**
+
+- **Incremental Development**: Write ONE test at a time, debug before proceeding
+- **Semantic Locators**: Use `getByRole()`, `getByLabel()`, `getByText()` exclusively
+- **Page Object Models**: Create POMs for AuthPage, ClubPage, AgeGroupPage, AthletePages
+- **No Arbitrary Timeouts**: Use proper Playwright waiting strategies
+- **Debug-First Approach**: Use `--debug` and `--ui` modes for development
+
+**Development Process for E2E Tests:**
+
+1. Write ONE test skeleton with basic navigation
+2. Run with `npx playwright test --grep "test name" --debug`
+3. Add ONE interaction (form fill, button click, etc.)
+4. Debug and verify before adding next interaction
+5. Build up complete workflows incrementally
+
+**Page Object Model Structure:**
+
+```typescript
+// Example from standards - apply to all athlete management POMs
+export class AthleteCreationPage {
+  constructor(private page: Page) {}
+
+  async goto() {
+    await this.page.goto('/athletes/new');
+    await expect(this.page).toHaveURL(/athletes\/new/);
+  }
+
+  async fillAthleteForm(firstName: string, lastName: string, gender: string) {
+    await this.page
+      .getByRole('textbox', { name: 'First Name' })
+      .fill(firstName);
+    await this.page.getByRole('textbox', { name: 'Last Name' }).fill(lastName);
+    await this.page
+      .getByRole('combobox', { name: 'Gender' })
+      .selectOption(gender);
+  }
+
+  async submitForm() {
+    await this.page.getByRole('button', { name: 'Create Athlete' }).click();
+    await expect(
+      this.page.getByText('Athlete created successfully')
+    ).toBeVisible();
+  }
+}
+```
+
+**Semantic Locator Examples for Athlete Management:**
+
+- Forms: `page.getByRole('textbox', { name: 'First Name' })`
+- Buttons: `page.getByRole('button', { name: 'Create Athlete' })`
+- Navigation: `page.getByRole('link', { name: 'Athletes' })`
+- Search: `page.getByRole('searchbox', { name: 'Search athletes' })`
+- Filters: `page.getByRole('combobox', { name: 'Filter by gender' })`
+- Tables: `page.getByRole('cell', { name: 'John Doe' })`
 
 ## 📋 **DETAILED IMPLEMENTATION SPECIFICATIONS**
 
