@@ -3,7 +3,9 @@ import { AppWorkflow } from './pages/AppWorkflow';
 import { SeasonPage } from './pages/SeasonPage';
 
 test.describe('Season Management', () => {
-  test('user can manage seasons with full CRUD operations', async ({ page }) => {
+  test('user can manage seasons with full CRUD operations', async ({
+    page,
+  }) => {
     const app = new AppWorkflow(page);
     const seasonPage = new SeasonPage(page);
 
@@ -12,7 +14,10 @@ test.describe('Season Management', () => {
     await seasonPage.goto();
 
     // Step 2: Create a new season
-    await seasonPage.createSeason('Track & Field 2025', 'Outdoor track and field season');
+    await seasonPage.createSeason(
+      'Track & Field 2025',
+      'Outdoor track and field season'
+    );
     await seasonPage.expectSeasonInList('Track & Field 2025');
 
     // Step 3: Create another season for testing
@@ -56,7 +61,9 @@ test.describe('Season Management', () => {
     await seasonPage.expectSeasonInList('Outdoor Track & Field 2025');
   });
 
-  test('season table sorting and filtering works correctly', async ({ page }) => {
+  test('season table sorting and filtering works correctly', async ({
+    page,
+  }) => {
     const app = new AppWorkflow(page);
     const seasonPage = new SeasonPage(page);
 
@@ -77,7 +84,7 @@ test.describe('Season Management', () => {
 
     // Clear search
     await seasonPage.searchSeasons('');
-    
+
     // Verify all seasons are visible
     await seasonPage.expectSeasonInList('Track & Field');
     await seasonPage.expectSeasonInList('Cross Country');
@@ -108,14 +115,18 @@ test.describe('Season Management', () => {
     // Test name length validation
     await page.getByLabel('Season Name').fill('a'.repeat(101)); // 101 characters
     await page.getByRole('button', { name: 'Create Season' }).click();
-    await seasonPage.expectValidationError('Name must be 100 characters or less');
+    await seasonPage.expectValidationError(
+      'Name must be 100 characters or less'
+    );
 
-    // Test description length validation  
+    // Test description length validation
     await page.getByLabel('Season Name').clear();
     await page.getByLabel('Season Name').fill('Valid Season Name');
     await page.getByLabel('Description').fill('a'.repeat(501)); // 501 characters
     await page.getByRole('button', { name: 'Create Season' }).click();
-    await seasonPage.expectValidationError('Description must be 500 characters or less');
+    await seasonPage.expectValidationError(
+      'Description must be 500 characters or less'
+    );
 
     // Test successful creation with valid data
     await page.getByLabel('Description').clear();
@@ -128,4 +139,4 @@ test.describe('Season Management', () => {
     // Clean up
     await seasonPage.deleteSeason('Valid Season Name');
   });
-}); 
+});
