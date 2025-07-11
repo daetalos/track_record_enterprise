@@ -147,7 +147,8 @@ model Gender {
   initial String @unique @db.VarChar(1)     // M, F
   
   // Relationships
-  athletes Athlete[]
+  athletes     Athlete[]
+  performances Performance[]
 
   @@index([name])
   @@index([initial])
@@ -164,8 +165,9 @@ model AgeGroup {
   updatedAt DateTime @updatedAt
 
   // Relationships
-  club     Club      @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  athletes Athlete[]
+  club         Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  athletes     Athlete[]
+  performances Performance[]
 
   // Business constraints
   @@unique([clubId, name])  // Age group names unique within each club
@@ -186,9 +188,10 @@ model Athlete {
   updatedAt DateTime @updatedAt
 
   // Relationships
-  club      Club     @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  gender    Gender   @relation(fields: [genderId], references: [id], onDelete: Restrict)
-  ageGroup  AgeGroup? @relation(fields: [ageGroupId], references: [id], onDelete: SetNull)
+  club         Club          @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  gender       Gender        @relation(fields: [genderId], references: [id], onDelete: Restrict)
+  ageGroup     AgeGroup?     @relation(fields: [ageGroupId], references: [id], onDelete: SetNull)
+  performances Performance[]
   
   // Optional age group assignment
   ageGroupId String?
@@ -240,7 +243,8 @@ model Discipline {
   updatedAt        DateTime @updatedAt
 
   // Relationships
-  season           Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  season       Season        @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  performances Performance[]
 
   // Business constraints
   @@unique([seasonId, name])  // Discipline names unique within each season
@@ -260,6 +264,66 @@ model Medal {
   // Business constraints for medal positions
   // Position 1 = Gold, Position 2 = Silver, Position 3 = Bronze, Positions 4-12 = Bronze
   
+  // Relationships
+  performances Performance[]
+  
   @@index([position])
   @@map("medals")
+}
+
+// Performance model for athlete performance recording
+model Performance {
+  id           String   @id @default(cuid())
+  athleteId    String
+  disciplineId String
+  ageGroupId   String
+  genderId     String
+  medalId      String?  // Optional medal assignment
+  
+  // Performance values (either time or distance, not both)
+  timeSeconds    Float?  // For timed disciplines
+  distanceMeters Float?  // For measured disciplines
+  
+  // Event information
+  date         DateTime @db.Date       // Competition date
+  eventDetails String   @db.VarChar(255) // Competition/event name
+  
+  // Record flags
+  isPersonalBest   Boolean @default(false)
+  isClubRecord     Boolean @default(false)
+  wasPersonalBest  Boolean @default(false) // Historical flag
+  wasClubRecord    Boolean @default(false) // Historical flag
+  
+  // File upload support
+  proofFileUrl  String? @db.VarChar(500)
+  proofFileName String? @db.VarChar(255)
+  
+  // Team performance support - JSON array of athlete IDs
+  teamMembers   Json?   // Array of athlete IDs for team events
+  
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  athlete    Athlete    @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  discipline Discipline @relation(fields: [disciplineId], references: [id], onDelete: Cascade)
+  ageGroup   AgeGroup   @relation(fields: [ageGroupId], references: [id], onDelete: Cascade)
+  gender     Gender     @relation(fields: [genderId], references: [id], onDelete: Restrict)
+  medal      Medal?     @relation(fields: [medalId], references: [id], onDelete: SetNull)
+
+  // Business constraints
+  @@unique([athleteId, disciplineId, ageGroupId, genderId, date, eventDetails]) // Prevent duplicate performances
+  @@index([athleteId])
+  @@index([disciplineId])
+  @@index([ageGroupId])
+  @@index([genderId])
+  @@index([medalId])
+  @@index([date])
+  @@index([isPersonalBest])
+  @@index([isClubRecord])
+  @@index([athleteId, disciplineId])
+  @@index([disciplineId, ageGroupId, genderId])
+  @@index([date, disciplineId])
+  @@map("performances")
 }
