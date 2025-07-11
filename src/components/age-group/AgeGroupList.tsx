@@ -7,7 +7,7 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table/index';
 import Button from '@/components/ui/button/Button';
 import { PencilIcon, TrashBinIcon } from '@/icons';
 import type { AgeGroup } from '@/types/athlete';
