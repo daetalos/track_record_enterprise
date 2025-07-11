@@ -14,7 +14,7 @@ import {
   TableCell,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table/index';
 import Button from '@/components/ui/button/Button';
 import { PencilIcon, TrashBinIcon, GroupIcon, EyeIcon } from '@/icons';
 import { useRouter } from 'next/navigation';
