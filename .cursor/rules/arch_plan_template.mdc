@@ -248,9 +248,14 @@ npm run test:run       # Quick unit test execution (existing tests only)
 ### **Step 4: Develop (Refine)**
 - Fix issues found in Level 1 testing
 - Improve implementation based on feedback
-- **Write comprehensive unit tests** for the new functionality
+- **Write comprehensive unit tests** for YOUR business logic and validation functions
+- **Write Playwright E2E tests** following `@playwright-testing-standards.mdc` for UI iterations
 - Follow existing test patterns in the project (Vitest, React Testing Library)
-- Achieve 100% test coverage for new code
+- Achieve 100% test coverage for new business logic
+
+**Testing Focus**: Test YOUR code - business logic, validation functions, and custom logic. Do NOT test framework functionality (Prisma ORM, Next.js, React, etc.)
+
+**E2E Testing Focus**: For UI iterations, implement Playwright tests following "One Test at a Time" development process to prevent delays
 
 ### **Step 5: Test (Level 2 - Integration Validation)**
 ```powershell
@@ -273,7 +278,8 @@ docker-compose logs web --tail=50  # Check for deployment errors
 
 # Validate iteration functionality in containerized environment
 # [Specific validation steps for each iteration's features]
-# Example: Test API endpoints, verify database connectivity, check UI rendering
+# Example: Test API endpoints with PowerShell, verify database connectivity, check UI rendering
+# Use PowerShell syntax: Invoke-RestMethod -Uri "http://localhost:3000/api/endpoint" -Method GET
 
 # Clean up Docker environment
 docker-compose down
@@ -292,18 +298,29 @@ npm run build                   # Clean build confirmation
 npm run quality:check          # No linting/formatting issues
 ```
 
+**⚠️ CRITICAL: MANDATORY COMPLETION CRITERIA CHECK**
+
+**STEP 1: Review the "ITERATION X COMPLETION CRITERIA" section at the bottom of this iteration.**
+
+Each iteration has a specific completion criteria section that MUST be verified:
+
+```markdown
+### 🎯 ITERATION X COMPLETION CRITERIA
+ALL items must be verified before creating PR:
+- [ ] [Specific criteria for this iteration]
+- [ ] [Another specific criteria]
+- [ ] [Continue for all iteration criteria]
+```
+
+**STEP 2: Verify EVERY item in that section with evidence before proceeding.**
+
 **ITERATION COMPLETION CRITERIA VERIFICATION:**
 
-Review each completion criteria from the iteration's criteria section:
+⚠️ **Go to the "🎯 ITERATION X COMPLETION CRITERIA" section below and check off EVERY item before proceeding.**
 
-- [ ] **[Criteria 1 from iteration]** 
-  - Evidence: _______________________________________________
-  
-- [ ] **[Criteria 2 from iteration]** 
-  - Evidence: _______________________________________________
-  
-- [ ] **[Continue for all iteration-specific criteria]**
-  - Evidence: _______________________________________________
+- [ ] **I have reviewed and verified ALL items in the "🎯 ITERATION X COMPLETION CRITERIA" section**
+- [ ] **Every checkbox in that section is completed**
+- [ ] **The iteration is ready for progress tracking and PR creation**
 
 **REGRESSION & QUALITY VERIFICATION:**
 
@@ -332,34 +349,57 @@ Review each completion criteria from the iteration's criteria section:
 
 **FINAL SIGN-OFF:**
 
-- [ ] **ALL completion criteria verified** and evidence provided above
-- [ ] **Iteration is COMPLETE** and ready for PR creation
-- [ ] **No outstanding issues** or incomplete features
-- [ ] **Ready to proceed** with Step 7: Create PR & Merge
+- [ ] **ALL completion criteria verified** in the iteration-specific section below
+- [ ] **All regression and quality checks passed**
+- [ ] **Iteration is COMPLETE** and ready for progress tracking update
+- [ ] **Ready to proceed** with Step 7: Update Progress Tracking
 
-**⚠️ DO NOT PROCEED TO PR CREATION UNLESS ALL ITEMS ABOVE ARE CHECKED WITH EVIDENCE**
+**⚠️ DO NOT PROCEED TO PROGRESS TRACKING UNLESS ALL CHECKBOXES ABOVE ARE COMPLETED**
 
-### **Step 7: Create PR & Merge (From git-standards.mdc)**
-```powershell
-# Push feature branch
-git push -u origin feat/iterationX-feature-name
-
-# Create PR with detailed description
-gh pr create --title "feat([scope]): [feature description]" --body "[Detailed PR description]"
-
-# After review and approval, update main
-git checkout main
-git pull origin main
-git branch -d feat/iterationX-feature-name
-```
-
-### **Step 8: Update Progress Tracking**
+### **Step 7: Update Progress Tracking**
 ```powershell
 # Update execution plan with iteration completion
 # Mark iteration as completed in progress dashboard
 # Update overall progress percentage
-# Update current iteration status
 # Set next iteration as ready to begin
+git add .cursor/instructions/003_plans/[plan-name].md
+git commit -m "docs: update progress tracking for Iteration X completion"
+```
+
+### **Step 8: Create PR & Merge**
+```powershell
+# Push feature branch with concise commit
+git add .
+git commit -m "feat([scope]): [concise feature description]"
+git push -u origin feat/iterationX-feature-name
+```
+
+**PR Summary (Copy for manual PR creation):**
+```markdown
+## [Feature Name]
+
+**Type:** [Feature/Bugfix/Enhancement]
+**Scope:** [Database/API/UI/etc.]
+
+### Changes
+- [Bullet point of main changes]
+- [Another key change]
+- [Additional important change]
+
+### Testing
+- [Testing approach and coverage]
+- [Key test scenarios covered]
+- All existing tests continue to pass
+
+### Dependencies
+- [Dependencies on previous iterations or external requirements]
+```
+
+```powershell
+# After PR approval and merge, clean up
+git checkout main
+git pull origin main
+git branch -d feat/iterationX-feature-name
 ```
 
 ## **📋 ITERATION X IMPLEMENTATION**
@@ -374,11 +414,13 @@ git branch -d feat/iterationX-feature-name
 2. [Another step with validation checkpoints]
 
 **Testing Strategy**:
-- **Step 4 Focus**: Write comprehensive unit tests after initial implementation
+- **Step 4 Focus**: Write tests for YOUR business logic and validation functions (NOT framework functionality)
 - **Test Patterns**: Follow existing project test structure (Vitest, React Testing Library)
-- **Coverage Goal**: Achieve 100% test coverage for new functionality
+- **Coverage Goal**: Achieve 100% test coverage for YOUR custom business logic
 - **Test Files**: Place tests in `__tests__` directories alongside source files
-- **Mocking**: Use Vitest mocking patterns consistent with existing tests
+- **Testing Scope**: Focus on custom validation functions, business rules, and constraint helpers - avoid testing framework functionality (Prisma, Next.js, React)
+- **E2E Testing**: For UI iterations, implement Playwright E2E tests following `@playwright-testing-standards.mdc`
+- **Seed Data**: Add reference data to `prisma/seed-data.yaml` instead of hardcoding strings in implementation
 
 **Regression Protection**:
 - [ ] Existing functionality remains intact
@@ -387,14 +429,14 @@ git branch -d feat/iterationX-feature-name
 - [ ] New functionality has comprehensive test coverage
 
 **Commit Strategy**:
-- Commit after initial implementation: `feat([scope]): implement [core functionality]`
-- Commit after tests: `test([scope]): add comprehensive unit tests for [functionality]`
-- Commit after refinements: `feat([scope]): refine [functionality] based on test feedback`
+- Progressive commits during development
+- Final commit: `feat([scope]): [concise feature description]`
 
 ### **🎯 ITERATION X COMPLETION CRITERIA**
 ALL items must be verified before creating PR:
 - [ ] Level 1 tests pass (quality:check, test:run) 
 - [ ] **New unit tests written** with 100% coverage for new functionality
+- [ ] **Playwright E2E tests implemented** (for UI iterations) following @playwright-testing-standards.mdc
 - [ ] Level 2 tests pass (test:coverage, build) including new tests
 - [ ] Level 3 tests pass (test:all, validate:pre-docker) 
 - [ ] Docker deployment validation passes (containers start, functionality works)
@@ -428,8 +470,9 @@ Include comprehensive session recovery procedures:
 6. **Test L2** → `npm run test:coverage && npm run build`
 7. **Test L3** → `npm run test:all && npm run validate:pre-docker`
 8. **Docker Validation** → `docker-compose up --build -d` + feature validation
-9. **Create PR** → Push branch and create detailed pull request
-10. **Update Progress** → Mark iteration as completed in execution plan dashboard
+9. **⚠️ MANDATORY: Verify Completion Criteria** → Review and verify EVERY item in the "🎯 ITERATION X COMPLETION CRITERIA" section
+10. **Update Progress** → Update execution plan and commit progress tracking changes
+11. **Create PR** → Push branch and create detailed pull request
 
 ### **Quality Gates (4-Level Testing Pyramid)**
 - **Level 1**: Immediate feedback (quality:check, test:run)
@@ -459,15 +502,18 @@ If issues occur during an iteration:
 2. **Single session completion** - 2-4 hours maximum per iteration
 3. **Clear dependencies** - Each iteration builds on previous stable iterations
 4. **Continuous testing** - 3-level testing pyramid throughout development
+5. **Configuration over hardcoding** - Use `prisma/seed-data.yaml` for reference data instead of hardcoded strings
+6. **PowerShell commands** - Use PowerShell syntax for HTTP testing and Windows-compatible commands in Docker validation
 
 ### Testing Integration Rules
 1. **npm script consistency** - Always use project's established npm scripts
 2. **Immediate feedback** - Level 1 tests after initial development (existing tests only)
 3. **Test-driven refinement** - Write comprehensive unit tests during Step 4 refinement
-4. **Integration validation** - Level 2 tests after refinements (including new tests)
-5. **Release readiness** - Level 3 tests before PR creation
-6. **Coverage requirement** - Achieve 100% test coverage for new functionality
-7. **Pattern consistency** - Follow existing test patterns (Vitest, React Testing Library)
+4. **E2E testing requirement** - Write Playwright E2E tests for UI iterations following @playwright-testing-standards.mdc
+5. **Integration validation** - Level 2 tests after refinements (including new tests)
+6. **Release readiness** - Level 3 tests before PR creation
+7. **Coverage requirement** - Achieve 100% test coverage for new functionality
+8. **Pattern consistency** - Follow existing test patterns (Vitest, React Testing Library)
 
 ### Git Workflow Rules
 1. **Fresh main pulls** - Always start iterations from latest main
@@ -484,12 +530,13 @@ If issues occur during an iteration:
 
 ### Test Writing Rules (Step 4 Focus)
 1. **Implementation first** - Write core functionality before tests (Steps 2-3)
-2. **Comprehensive testing** - Write tests during Step 4 refinement phase
+2. **Business logic testing** - Write tests for YOUR custom code during Step 4 refinement phase
 3. **Pattern consistency** - Follow existing test file structure and naming
-4. **Coverage requirement** - Achieve 100% coverage for new functionality
-5. **Mocking strategy** - Use Vitest mocking patterns from existing tests
-6. **Test placement** - Place tests in `__tests__` directories alongside source
-7. **Test types** - Focus on unit tests; integration tests handled by E2E suite
+4. **Coverage requirement** - Achieve 100% coverage for YOUR business logic (not framework code)
+5. **Testing scope** - Test custom validation functions, business rules, and constraint helpers
+6. **Framework exclusion** - Do NOT test Prisma ORM, Next.js, React, or other framework functionality
+7. **Test placement** - Place tests in `__tests__` directories alongside source
+8. **Test types** - Focus on unit tests for business logic; integration tests handled by E2E suite
 
 ## Validation Checklist for Execution Plans
 
@@ -501,12 +548,14 @@ Before finalizing any execution plan, verify:
 - [ ] **Component reuse strategy** documented based on existing pattern analysis
 - [ ] **UI/UX consistency requirements** identified and mandated
 - [ ] **Testing pattern compliance** specified based on existing test structure
+- [ ] **Playwright E2E testing** included for UI iterations with @playwright-testing-standards.mdc reference
 - [ ] **Each iteration** has atomic scope, clear objectives, and completion criteria
+- [ ] **🎯 COMPLETION CRITERIA sections** are comprehensive and specific for each iteration
 - [ ] **Testing pyramid** includes Level 1, 2, and 3 validation using npm scripts
 - [ ] **Test writing strategy** clearly specifies Step 4 as testing phase
 - [ ] **Coverage requirements** mandate 100% coverage for new functionality
 - [ ] **Test patterns** require following existing project structure (Vitest, etc.)
-- [ ] **Completion criteria verification** includes Step 6.8 with evidence requirements
+- [ ] **Completion criteria verification** includes Step 6.8 with mandatory review of iteration-specific criteria
 - [ ] **Git workflow** includes fresh main pulls and PR creation
 - [ ] **Session management** provides context recovery procedures
 - [ ] **Regression protection** ensures backward compatibility

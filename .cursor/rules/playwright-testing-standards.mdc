@@ -1,10 +1,7 @@
-
 ---
 description: Use when writing e2e tests that validate UI functionality
-globs: 
 alwaysApply: false
 ---
-
 # Playwright E2E Testing Standards
 
 Comprehensive strategy for writing reliable, maintainable Playwright tests that eliminate common pain points and reduce debugging complexity.
