@@ -250,3 +250,16 @@ model Discipline {
   @@index([isMeasured])
   @@map("disciplines")
 }
+
+// Medal model for competition awards and recognition
+model Medal {
+  id       String @id @default(cuid())
+  position Int    @unique               // Position 1-12
+  name     String @db.VarChar(16)       // Gold, Silver, Bronze
+  
+  // Business constraints for medal positions
+  // Position 1 = Gold, Position 2 = Silver, Position 3 = Bronze, Positions 4-12 = Bronze
+  
+  @@index([position])
+  @@map("medals")
+}

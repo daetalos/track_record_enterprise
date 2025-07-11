@@ -90,3 +90,42 @@ relationships:
   - user_index: 4
     club_index: 2
     role: 'MEMBER'
+
+# Medal positions for competition awards (1-12)
+# Position 1 = Gold, Position 2 = Silver, Position 3 = Bronze, Positions 4-12 = Bronze
+medals:
+  - position: 1
+    name: 'Gold'
+
+  - position: 2
+    name: 'Silver'
+
+  - position: 3
+    name: 'Bronze'
+
+  - position: 4
+    name: 'Bronze'
+
+  - position: 5
+    name: 'Bronze'
+
+  - position: 6
+    name: 'Bronze'
+
+  - position: 7
+    name: 'Bronze'
+
+  - position: 8
+    name: 'Bronze'
+
+  - position: 9
+    name: 'Bronze'
+
+  - position: 10
+    name: 'Bronze'
+
+  - position: 11
+    name: 'Bronze'
+
+  - position: 12
+    name: 'Bronze'
