@@ -7,6 +7,17 @@ metadata:
   description: 'Track Record Enterprise - Development Seed Data'
   lastUpdated: '2024-12-28'
 
+# Athletics seasons for discipline organization
+seasons:
+  - name: 'Track & Field'
+    description: 'Outdoor track and field competitions during spring and summer seasons'
+
+  - name: 'Indoors'
+    description: 'Indoor track competitions during winter months with shorter distances'
+
+  - name: 'Cross Country'
+    description: 'Distance running competitions over varied terrain during fall season'
+
 clubs:
   - name: 'Elite Athletics Club'
     description: 'Premier track and field club for competitive athletes seeking excellence in sprints, distance, and field events.'
