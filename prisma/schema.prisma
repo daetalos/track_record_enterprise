@@ -203,3 +203,50 @@ model Athlete {
   @@index([clubId, firstName, lastName])
   @@map("athletes")
 }
+
+// Season model for organizing disciplines across athletics seasons
+model Season {
+  id          String   @id @default(cuid())
+  name        String   @unique @db.VarChar(64)  // Track & Field, Indoors, Cross Country
+  description String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  disciplines Discipline[]
+
+  @@index([name])
+  @@map("seasons")
+}
+
+// Discipline model for athletics events and competitions
+model Discipline {
+  id               String   @id @default(cuid())
+  seasonId         String
+  name             String   @db.VarChar(128)     // 100m, 200m, High Jump, Shot Put, 4x100m Relay
+  description      String?  @db.Text
+  
+  // Discipline type classification (mutually exclusive)
+  isTimed          Boolean  @default(false)      // True for timed events (sprints, distance)
+  isMeasured       Boolean  @default(false)      // True for measured events (jumps, throws)
+  
+  // Performance comparison direction
+  isSmallerBetter  Boolean  @default(false)      // True for timed events (smaller time = better)
+  
+  // Team event configuration
+  teamSize         Int?                          // Number of team members for relay events (null for individual)
+  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relationships
+  season           Season   @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  // Business constraints
+  @@unique([seasonId, name])  // Discipline names unique within each season
+  @@index([seasonId])
+  @@index([seasonId, name])
+  @@index([isTimed])
+  @@index([isMeasured])
+  @@map("disciplines")
+}

@@ -22,6 +22,14 @@ const loadSeedData = () => {
       throw new Error('Invalid seed data structure: missing required sections');
     }
 
+    if (!data.seasons) {
+      throw new Error('Invalid seed data structure: missing seasons section');
+    }
+
+    if (data.seasons.length === 0) {
+      throw new Error('Seed data must contain at least one season');
+    }
+
     if (data.clubs.length === 0) {
       throw new Error('Seed data must contain at least one club');
     }
@@ -48,7 +56,7 @@ const loadSeedData = () => {
     }
 
     console.log(
-      `📄 Loaded seed data v${data.metadata.version}: ${data.clubs.length} clubs, ${data.users.length} users, ${data.relationships.length} relationships`
+      `📄 Loaded seed data v${data.metadata.version}: ${data.seasons.length} seasons, ${data.clubs.length} clubs, ${data.users.length} users, ${data.relationships.length} relationships`
     );
     return data;
   } catch (error) {
@@ -105,6 +113,24 @@ async function main() {
   ]);
   console.log(`✅ Created/verified ${genders.length} gender entries`);
 
+  // Create seasons from YAML data
+  console.log('🏃‍♂️ Creating seasons...');
+  const seasons = await Promise.all(
+    seedData.seasons.map(seasonData =>
+      prisma.season.upsert({
+        where: { name: seasonData.name },
+        update: {
+          description: seasonData.description,
+        },
+        create: {
+          name: seasonData.name,
+          description: seasonData.description,
+        },
+      })
+    )
+  );
+  console.log(`✅ Created/verified ${seasons.length} seasons`);
+
   // Create clubs from YAML data
   console.log('🏃 Creating clubs...');
   const clubs = await Promise.all(
@@ -159,6 +185,7 @@ async function main() {
   // Print summary
   console.log('\n📋 Seed Data Summary:');
   console.log(`   ⚧ Genders: ${genders.length}`);
+  console.log(`   🏃‍♂️ Seasons: ${seasons.length}`);
   console.log(`   🏃 Clubs: ${clubs.length}`);
   console.log(`   👥 Users: ${users.length}`);
   console.log(`   🔗 Relationships: ${relationships.length}`);
