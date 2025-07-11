@@ -397,7 +397,11 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
         {/* Search header - always rendered */}
         <div className="border-b border-gray-200 p-6 dark:border-gray-700">
           <div className="flex-1 max-w-sm">
+            <label htmlFor="athlete-search" className="sr-only">
+              Search athletes
+            </label>
             <Input
+              id="athlete-search"
               placeholder="Search athletes..."
               value={globalFilter ?? ''}
               onChange={e => handleSearch(e.target.value)}

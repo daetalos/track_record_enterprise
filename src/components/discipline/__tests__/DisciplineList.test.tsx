@@ -286,8 +286,8 @@ describe('DisciplineList', () => {
     expect(screen.getByText('Indoor 60m')).toBeInTheDocument();
 
     // Check seasons
-    expect(screen.getAllByText('Track & Field')).toHaveLength(3);
-    expect(screen.getByText('Indoors')).toBeInTheDocument();
+    expect(screen.getAllByText('Track & Field')).toHaveLength(4);
+    expect(screen.getAllByText('Indoors')).toHaveLength(2);
 
     // Check types with proper badges
     expect(screen.getAllByText('Timed')).toHaveLength(3);

@@ -314,10 +314,10 @@ export default function DisciplineModal({
           </div>
 
           {/* Type Selection */}
-          <div>
-            <Label>
+          <fieldset>
+            <legend className="text-sm font-medium text-gray-900 dark:text-white">
               Discipline Type <span className="text-red-500">*</span>
-            </Label>
+            </legend>
             <div className="mt-2 space-y-2">
               <label className="flex items-center">
                 <input
@@ -327,6 +327,7 @@ export default function DisciplineModal({
                   onChange={() => handleInputChange('isTimed', true)}
                   disabled={isSubmitting}
                   className="mr-2"
+                  aria-describedby="discipline-type-description"
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   <strong>Timed</strong> - Events measured by time (e.g.,
@@ -341,6 +342,7 @@ export default function DisciplineModal({
                   onChange={() => handleInputChange('isMeasured', true)}
                   disabled={isSubmitting}
                   className="mr-2"
+                  aria-describedby="discipline-type-description"
                 />
                 <span className="text-sm text-gray-700 dark:text-gray-300">
                   <strong>Measured</strong> - Events measured by distance/height
@@ -353,7 +355,7 @@ export default function DisciplineModal({
                 {errors.isTimed || errors.isMeasured}
               </p>
             )}
-          </div>
+          </fieldset>
 
           {/* Team Size Field */}
           <div>
