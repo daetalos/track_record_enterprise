@@ -6,19 +6,37 @@ import React, {
   useCallback,
   forwardRef,
   useImperativeHandle,
+  useMemo,
 } from 'react';
-import { useClub } from '@/context/ClubContext';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  createColumnHelper,
+  type SortingState,
+  type ColumnFiltersState,
+} from '@tanstack/react-table';
 import {
   Table,
   TableBody,
   TableCell,
+  TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table/index';
+} from '@/components/ui/table';
+import { useClub } from '@/context/ClubContext';
 import Button from '@/components/ui/button/Button';
-import { PencilIcon, TrashBinIcon, GroupIcon, EyeIcon } from '@/icons';
+import Input from '@/components/form/input/InputField';
+import {
+  PencilIcon,
+  TrashBinIcon,
+  GroupIcon,
+  EyeIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+} from '@/icons';
 import { useRouter } from 'next/navigation';
-import { AthleteSearch } from './AthleteSearch';
 
 interface Gender {
   id: string;
@@ -60,6 +78,8 @@ export interface AthleteListRef {
   refresh: () => void;
 }
 
+const columnHelper = createColumnHelper<Athlete>();
+
 export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
   ({ onEdit, onRefresh }, ref) => {
     const { selectedClub } = useClub();
@@ -73,6 +93,11 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
     const [total, setTotal] = useState(0);
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
+    // TanStack Table state
+    const [sorting, setSorting] = useState<SortingState>([]);
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+    const [globalFilter, setGlobalFilter] = useState('');
+
     const limit = 10; // Athletes per page
 
     // Expose refresh method via ref
@@ -83,6 +108,14 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
         }
       },
     }));
+
+    // Handle athlete view
+    const handleView = useCallback(
+      (athlete: Athlete) => {
+        router.push(`/athletes/${athlete.id}`);
+      },
+      [router]
+    );
 
     // Fetch athletes
     const fetchAthletes = useCallback(
@@ -123,6 +156,182 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
       [selectedClub?.id, limit]
     );
 
+    // Handle athlete deletion
+    const handleDelete = useCallback(
+      async (athlete: Athlete) => {
+        if (
+          !confirm(
+            `Are you sure you want to delete "${athlete.firstName} ${athlete.lastName}"?`
+          )
+        ) {
+          return;
+        }
+
+        setDeletingId(athlete.id);
+
+        try {
+          const response = await fetch(`/api/athletes/${athlete.id}`, {
+            method: 'DELETE',
+          });
+
+          if (!response.ok) {
+            const data = await response.json();
+            throw new Error(data.error || 'Failed to delete athlete');
+          }
+
+          // Refresh the list after successful deletion
+          if (onRefresh) {
+            onRefresh();
+          } else {
+            fetchAthletes(currentPage, searchTerm);
+          }
+        } catch (error) {
+          console.error('Error deleting athlete:', error);
+          alert(
+            error instanceof Error ? error.message : 'Failed to delete athlete'
+          );
+        } finally {
+          setDeletingId(null);
+        }
+      },
+      [onRefresh, currentPage, searchTerm, fetchAthletes]
+    );
+
+    // Define table columns
+    const columns = useMemo(
+      () => [
+        columnHelper.accessor(row => `${row.firstName} ${row.lastName}`, {
+          id: 'name',
+          header: ({ column }) => (
+            <button
+              className="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+            >
+              Name
+              {column.getIsSorted() === 'asc' ? (
+                <ChevronUpIcon className="w-4 h-4" />
+              ) : column.getIsSorted() === 'desc' ? (
+                <ChevronDownIcon className="w-4 h-4" />
+              ) : null}
+            </button>
+          ),
+          cell: ({ getValue }) => (
+            <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+              {getValue()}
+            </span>
+          ),
+        }),
+        columnHelper.accessor('gender.name', {
+          id: 'gender',
+          header: 'Gender',
+          cell: ({ getValue }) => (
+            <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800 dark:bg-blue-800 dark:text-blue-200">
+              {getValue()}
+            </span>
+          ),
+        }),
+        columnHelper.accessor('ageGroup.name', {
+          id: 'ageGroup',
+          header: 'Age Group',
+          cell: ({ getValue }) => (
+            <span className="text-gray-500 text-theme-sm dark:text-gray-400">
+              {getValue() || 'Not assigned'}
+            </span>
+          ),
+        }),
+        columnHelper.accessor('createdAt', {
+          id: 'createdAt',
+          header: ({ column }) => (
+            <button
+              className="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white"
+              onClick={() =>
+                column.toggleSorting(column.getIsSorted() === 'asc')
+              }
+            >
+              Added
+              {column.getIsSorted() === 'asc' ? (
+                <ChevronUpIcon className="w-4 h-4" />
+              ) : column.getIsSorted() === 'desc' ? (
+                <ChevronDownIcon className="w-4 h-4" />
+              ) : null}
+            </button>
+          ),
+          cell: ({ getValue }) => {
+            const date = getValue() as string;
+            return (
+              <span className="text-gray-500 text-theme-sm dark:text-gray-400">
+                {new Date(date).toLocaleDateString()}
+              </span>
+            );
+          },
+        }),
+        columnHelper.display({
+          id: 'actions',
+          header: () => <span className="text-end">Actions</span>,
+          cell: ({ row }) => {
+            const athlete = row.original;
+            return (
+              <div className="flex items-center justify-end gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleView(athlete)}
+                  startIcon={<EyeIcon className="w-4 h-4" />}
+                  className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
+                >
+                  View
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onEdit && onEdit(athlete)}
+                  startIcon={<PencilIcon className="w-4 h-4" />}
+                >
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDelete(athlete)}
+                  disabled={deletingId === athlete.id}
+                  startIcon={
+                    deletingId === athlete.id ? (
+                      <div className="w-4 h-4 border border-gray-300 rounded-full animate-spin border-t-transparent" />
+                    ) : (
+                      <TrashBinIcon className="w-4 h-4" />
+                    )
+                  }
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+                >
+                  {deletingId === athlete.id ? 'Deleting...' : 'Delete'}
+                </Button>
+              </div>
+            );
+          },
+        }),
+      ],
+      [onEdit, deletingId, handleDelete, handleView]
+    );
+
+    // Create table instance
+    const table = useReactTable({
+      data: athletes,
+      columns,
+      getCoreRowModel: getCoreRowModel(),
+      getSortedRowModel: getSortedRowModel(),
+      getFilteredRowModel: getFilteredRowModel(),
+      onSortingChange: setSorting,
+      onColumnFiltersChange: setColumnFilters,
+      onGlobalFilterChange: setGlobalFilter,
+      state: {
+        sorting,
+        columnFilters,
+        globalFilter,
+      },
+    });
+
     // Load athletes when club changes or component mounts
     useEffect(() => {
       if (selectedClub?.id) {
@@ -136,9 +345,10 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
       }
     }, [selectedClub?.id, fetchAthletes]);
 
-    // Handle search
+    // Handle search - using both global filter for TanStack table and API search
     const handleSearch = (term: string) => {
       setSearchTerm(term);
+      setGlobalFilter(term);
       setCurrentPage(1);
       fetchAthletes(1, term);
     };
@@ -147,49 +357,6 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
     const handlePageChange = (page: number) => {
       setCurrentPage(page);
       fetchAthletes(page, searchTerm);
-    };
-
-    // Handle athlete view
-    const handleView = (athlete: Athlete) => {
-      router.push(`/athletes/${athlete.id}`);
-    };
-
-    // Handle athlete deletion
-    const handleDelete = async (athlete: Athlete) => {
-      if (
-        !confirm(
-          `Are you sure you want to delete "${athlete.firstName} ${athlete.lastName}"?`
-        )
-      ) {
-        return;
-      }
-
-      setDeletingId(athlete.id);
-
-      try {
-        const response = await fetch(`/api/athletes/${athlete.id}`, {
-          method: 'DELETE',
-        });
-
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || 'Failed to delete athlete');
-        }
-
-        // Refresh the list after successful deletion
-        if (onRefresh) {
-          onRefresh();
-        } else {
-          fetchAthletes(currentPage, searchTerm);
-        }
-      } catch (error) {
-        console.error('Error deleting athlete:', error);
-        alert(
-          error instanceof Error ? error.message : 'Failed to delete athlete'
-        );
-      } finally {
-        setDeletingId(null);
-      }
     };
 
     // Loading state
@@ -229,7 +396,14 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
       <div className="space-y-6">
         {/* Search header - always rendered */}
         <div className="border-b border-gray-200 p-6 dark:border-gray-700">
-          <AthleteSearch key="athlete-search" onSearch={handleSearch} />
+          <div className="flex-1 max-w-sm">
+            <Input
+              placeholder="Search athletes..."
+              value={globalFilter ?? ''}
+              onChange={e => handleSearch(e.target.value)}
+              className="w-full"
+            />
+          </div>
         </div>
 
         {/* Conditional content based on athletes state */}
@@ -255,97 +429,36 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
               <div className="min-w-[600px]">
                 <Table>
                   <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-                    <TableRow>
-                      <TableCell
-                        isHeader
-                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                      >
-                        Name
-                      </TableCell>
-                      <TableCell
-                        isHeader
-                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                      >
-                        Gender
-                      </TableCell>
-                      <TableCell
-                        isHeader
-                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                      >
-                        Age Group
-                      </TableCell>
-                      <TableCell
-                        isHeader
-                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                      >
-                        Added
-                      </TableCell>
-                      <TableCell
-                        isHeader
-                        className="px-5 py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400"
-                      >
-                        Actions
-                      </TableCell>
-                    </TableRow>
+                    {table.getHeaderGroups().map(headerGroup => (
+                      <TableRow key={headerGroup.id}>
+                        {headerGroup.headers.map(header => (
+                          <TableHead
+                            key={header.id}
+                            className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                          >
+                            {header.isPlaceholder
+                              ? null
+                              : typeof header.column.columnDef.header ===
+                                  'function'
+                                ? header.column.columnDef.header(
+                                    header.getContext()
+                                  )
+                                : header.column.columnDef.header}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    ))}
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                    {athletes.map(athlete => (
-                      <TableRow key={athlete.id}>
-                        <TableCell className="px-5 py-4 text-start">
-                          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                            {athlete.firstName} {athlete.lastName}
-                          </span>
-                        </TableCell>
-                        <TableCell className="px-5 py-4 text-start">
-                          <span className="inline-flex rounded-full bg-blue-100 px-2 text-xs font-semibold leading-5 text-blue-800 dark:bg-blue-800 dark:text-blue-200">
-                            {athlete.gender.name}
-                          </span>
-                        </TableCell>
-                        <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                          {athlete.ageGroup?.name || 'Not assigned'}
-                        </TableCell>
-                        <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                          {new Date(athlete.createdAt).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell className="px-5 py-4 text-end">
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleView(athlete)}
-                              startIcon={<EyeIcon className="w-4 h-4" />}
-                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 dark:text-blue-400 dark:hover:text-blue-300 dark:hover:bg-blue-900/20"
-                            >
-                              View
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => onEdit && onEdit(athlete)}
-                              startIcon={<PencilIcon className="w-4 h-4" />}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleDelete(athlete)}
-                              disabled={deletingId === athlete.id}
-                              startIcon={
-                                deletingId === athlete.id ? (
-                                  <div className="w-4 h-4 border border-gray-300 rounded-full animate-spin border-t-transparent" />
-                                ) : (
-                                  <TrashBinIcon className="w-4 h-4" />
-                                )
-                              }
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
-                            >
-                              {deletingId === athlete.id
-                                ? 'Deleting...'
-                                : 'Delete'}
-                            </Button>
-                          </div>
-                        </TableCell>
+                    {table.getRowModel().rows.map(row => (
+                      <TableRow key={row.id}>
+                        {row.getVisibleCells().map(cell => (
+                          <TableCell key={cell.id} className="px-5 py-4">
+                            {typeof cell.column.columnDef.cell === 'function'
+                              ? cell.column.columnDef.cell(cell.getContext())
+                              : cell.getValue()}
+                          </TableCell>
+                        ))}
                       </TableRow>
                     ))}
                   </TableBody>
@@ -354,6 +467,24 @@ export const AthleteList = forwardRef<AthleteListRef, AthleteListProps>(
             </div>
           </div>
         )}
+
+        {/* Results info */}
+        <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+          <div>
+            {table.getFilteredRowModel().rows.length === 0 ? (
+              'No athletes found'
+            ) : (
+              <>
+                Showing {table.getRowModel().rows.length} of {total} athlete(s)
+                {searchTerm && (
+                  <span className="ml-2">
+                    matching &ldquo;{searchTerm}&rdquo;
+                  </span>
+                )}
+              </>
+            )}
+          </div>
+        </div>
 
         {/* Pagination */}
         {totalPages > 1 && (

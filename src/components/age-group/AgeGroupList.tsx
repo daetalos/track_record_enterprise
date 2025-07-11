@@ -1,15 +1,30 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  createColumnHelper,
+  type SortingState,
+  type ColumnFiltersState,
+} from '@tanstack/react-table';
 import {
   Table,
   TableBody,
   TableCell,
+  TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table/index';
+} from '@/components/ui/table';
 import Button from '@/components/ui/button/Button';
-import { PencilIcon, TrashBinIcon } from '@/icons';
+import {
+  PencilIcon,
+  TrashBinIcon,
+  ChevronUpIcon,
+  ChevronDownIcon,
+} from '@/icons';
 import type { AgeGroup } from '@/types/athlete';
 
 interface AgeGroupListProps {
@@ -19,6 +34,8 @@ interface AgeGroupListProps {
   onRefresh: () => void;
 }
 
+const columnHelper = createColumnHelper<AgeGroup>();
+
 export default function AgeGroupList({
   ageGroups,
   isLoading,
@@ -27,35 +44,168 @@ export default function AgeGroupList({
 }: AgeGroupListProps) {
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // TanStack Table state
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
+
   // Handle age group deletion
-  const handleDelete = async (ageGroup: AgeGroup) => {
-    if (!confirm(`Are you sure you want to delete "${ageGroup.name}"?`)) {
-      return;
-    }
-
-    setDeletingId(ageGroup.id);
-
-    try {
-      const response = await fetch(`/api/age-groups/${ageGroup.id}`, {
-        method: 'DELETE',
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to delete age group');
+  const handleDelete = useCallback(
+    async (ageGroup: AgeGroup) => {
+      if (!confirm(`Are you sure you want to delete "${ageGroup.name}"?`)) {
+        return;
       }
 
-      // Refresh the list after successful deletion
-      onRefresh();
-    } catch (error) {
-      console.error('Error deleting age group:', error);
-      alert(
-        error instanceof Error ? error.message : 'Failed to delete age group'
-      );
-    } finally {
-      setDeletingId(null);
-    }
-  };
+      setDeletingId(ageGroup.id);
+
+      try {
+        const response = await fetch(`/api/age-groups/${ageGroup.id}`, {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          throw new Error(data.error || 'Failed to delete age group');
+        }
+
+        // Refresh the list after successful deletion
+        onRefresh();
+      } catch (error) {
+        console.error('Error deleting age group:', error);
+        alert(
+          error instanceof Error ? error.message : 'Failed to delete age group'
+        );
+      } finally {
+        setDeletingId(null);
+      }
+    },
+    [onRefresh]
+  );
+
+  // Define table columns
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('name', {
+        id: 'name',
+        header: ({ column }) => (
+          <button
+            className="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Name
+            {column.getIsSorted() === 'asc' ? (
+              <ChevronUpIcon className="w-4 h-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <ChevronDownIcon className="w-4 h-4" />
+            ) : null}
+          </button>
+        ),
+        cell: ({ getValue }) => (
+          <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+            {getValue()}
+          </span>
+        ),
+      }),
+      columnHelper.accessor('ordinal', {
+        id: 'ordinal',
+        header: ({ column }) => (
+          <button
+            className="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Ordinal
+            {column.getIsSorted() === 'asc' ? (
+              <ChevronUpIcon className="w-4 h-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <ChevronDownIcon className="w-4 h-4" />
+            ) : null}
+          </button>
+        ),
+        cell: ({ getValue }) => (
+          <span className="text-gray-500 text-theme-sm dark:text-gray-400">
+            {getValue()}
+          </span>
+        ),
+      }),
+      columnHelper.accessor('createdAt', {
+        id: 'createdAt',
+        header: ({ column }) => (
+          <button
+            className="flex items-center gap-1 hover:text-gray-900 dark:hover:text-white"
+            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          >
+            Created
+            {column.getIsSorted() === 'asc' ? (
+              <ChevronUpIcon className="w-4 h-4" />
+            ) : column.getIsSorted() === 'desc' ? (
+              <ChevronDownIcon className="w-4 h-4" />
+            ) : null}
+          </button>
+        ),
+        cell: ({ getValue }) => {
+          const date = getValue() as Date;
+          return (
+            <span className="text-gray-500 text-theme-sm dark:text-gray-400">
+              {new Date(date).toLocaleDateString()}
+            </span>
+          );
+        },
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: () => <span className="text-end">Actions</span>,
+        cell: ({ row }) => {
+          const ageGroup = row.original;
+          return (
+            <div className="flex items-center justify-end gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => onEdit(ageGroup)}
+                startIcon={<PencilIcon className="w-4 h-4" />}
+              >
+                Edit
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => handleDelete(ageGroup)}
+                disabled={deletingId === ageGroup.id}
+                startIcon={
+                  deletingId === ageGroup.id ? (
+                    <div className="w-4 h-4 border border-gray-300 rounded-full animate-spin border-t-transparent" />
+                  ) : (
+                    <TrashBinIcon className="w-4 h-4" />
+                  )
+                }
+                className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
+              >
+                {deletingId === ageGroup.id ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          );
+        },
+      }),
+    ],
+    [onEdit, deletingId, handleDelete]
+  );
+
+  // Create table instance
+  const table = useReactTable({
+    data: ageGroups,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter,
+    },
+  });
 
   // Loading state
   if (isLoading) {
@@ -99,87 +249,61 @@ export default function AgeGroupList({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
-      <div className="max-w-full overflow-x-auto">
-        <div className="min-w-[600px]">
-          <Table>
-            {/* Table Header */}
-            <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
-              <TableRow>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Name
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Ordinal
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-                >
-                  Created
-                </TableCell>
-                <TableCell
-                  isHeader
-                  className="px-5 py-3 font-medium text-gray-500 text-end text-theme-xs dark:text-gray-400"
-                >
-                  Actions
-                </TableCell>
-              </TableRow>
-            </TableHeader>
+    <div className="space-y-4">
+      {/* Table */}
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+        <div className="max-w-full overflow-x-auto">
+          <div className="min-w-[600px]">
+            <Table>
+              <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                {table.getHeaderGroups().map(headerGroup => (
+                  <TableRow key={headerGroup.id}>
+                    {headerGroup.headers.map(header => (
+                      <TableHead
+                        key={header.id}
+                        className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : typeof header.column.columnDef.header === 'function'
+                            ? header.column.columnDef.header(
+                                header.getContext()
+                              )
+                            : header.column.columnDef.header}
+                      </TableHead>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableHeader>
+              <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                {table.getRowModel().rows.map(row => (
+                  <TableRow key={row.id}>
+                    {row.getVisibleCells().map(cell => (
+                      <TableCell key={cell.id} className="px-5 py-4">
+                        {typeof cell.column.columnDef.cell === 'function'
+                          ? cell.column.columnDef.cell(cell.getContext())
+                          : cell.getValue()}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </div>
 
-            {/* Table Body */}
-            <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-              {ageGroups.map(ageGroup => (
-                <TableRow key={ageGroup.id}>
-                  <TableCell className="px-5 py-4 text-start">
-                    <span className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                      {ageGroup.name}
-                    </span>
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {ageGroup.ordinal}
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-gray-500 text-start text-theme-sm dark:text-gray-400">
-                    {new Date(ageGroup.createdAt).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="px-5 py-4 text-end">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => onEdit(ageGroup)}
-                        startIcon={<PencilIcon className="w-4 h-4" />}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDelete(ageGroup)}
-                        disabled={deletingId === ageGroup.id}
-                        startIcon={
-                          deletingId === ageGroup.id ? (
-                            <div className="w-4 h-4 border border-gray-300 rounded-full animate-spin border-t-transparent" />
-                          ) : (
-                            <TrashBinIcon className="w-4 h-4" />
-                          )
-                        }
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
-                      >
-                        {deletingId === ageGroup.id ? 'Deleting...' : 'Delete'}
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      {/* Results info */}
+      <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+        <div>
+          {table.getFilteredRowModel().rows.length === 0 ? (
+            'No age groups found'
+          ) : (
+            <>
+              Showing {table.getRowModel().rows.length} of{' '}
+              {table.getFilteredRowModel().rows.length} age group(s)
+            </>
+          )}
         </div>
       </div>
     </div>
