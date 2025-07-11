@@ -1,10 +1,23 @@
+'use client';
+
+import React, { useState, useMemo } from 'react';
+import {
+  useReactTable,
+  getCoreRowModel,
+  getSortedRowModel,
+  getFilteredRowModel,
+  createColumnHelper,
+  type SortingState,
+  type ColumnFiltersState,
+} from '@tanstack/react-table';
 import {
   Table,
   TableBody,
   TableCell,
+  TableHead,
   TableHeader,
   TableRow,
-} from '../ui/table/index';
+} from '@/components/ui/table';
 import Badge from '../ui/badge/Badge';
 import Image from 'next/image';
 
@@ -24,7 +37,7 @@ interface Product {
 const tableData: Product[] = [
   {
     id: 1,
-    name: 'MacBook Pro 13”',
+    name: 'MacBook Pro 13"',
     variants: '2 Variants',
     category: 'Laptop',
     price: '$2399.00',
@@ -69,7 +82,105 @@ const tableData: Product[] = [
   },
 ];
 
+const columnHelper = createColumnHelper<Product>();
+
 export default function RecentOrders() {
+  // TanStack Table state
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
+
+  // Define table columns
+  const columns = useMemo(
+    () => [
+      columnHelper.accessor('name', {
+        id: 'products',
+        header: 'Products',
+        cell: ({ row }) => {
+          const product = row.original;
+          return (
+            <div className="flex items-center gap-3">
+              <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
+                <Image
+                  width={50}
+                  height={50}
+                  src={product.image}
+                  className="h-[50px] w-[50px]"
+                  alt={product.name}
+                />
+              </div>
+              <div>
+                <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                  {product.name}
+                </p>
+                <span className="text-gray-500 text-theme-xs dark:text-gray-400">
+                  {product.variants}
+                </span>
+              </div>
+            </div>
+          );
+        },
+      }),
+      columnHelper.accessor('category', {
+        id: 'category',
+        header: 'Category',
+        cell: ({ getValue }) => (
+          <span className="text-gray-500 text-theme-sm dark:text-gray-400">
+            {getValue()}
+          </span>
+        ),
+      }),
+      columnHelper.accessor('price', {
+        id: 'price',
+        header: 'Price',
+        cell: ({ getValue }) => (
+          <span className="text-gray-500 text-theme-sm dark:text-gray-400">
+            {getValue()}
+          </span>
+        ),
+      }),
+      columnHelper.accessor('status', {
+        id: 'status',
+        header: 'Status',
+        cell: ({ getValue }) => {
+          const status = getValue();
+          return (
+            <Badge
+              size="sm"
+              color={
+                status === 'Delivered'
+                  ? 'success'
+                  : status === 'Pending'
+                    ? 'warning'
+                    : 'error'
+              }
+            >
+              {status}
+            </Badge>
+          );
+        },
+      }),
+    ],
+    []
+  );
+
+  // Create table instance
+  const table = useReactTable({
+    data: tableData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    state: {
+      sorting,
+      columnFilters,
+      globalFilter,
+    },
+  });
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="flex flex-col gap-2 mb-4 sm:flex-row sm:items-center sm:justify-between">
@@ -125,82 +236,34 @@ export default function RecentOrders() {
       </div>
       <div className="max-w-full overflow-x-auto">
         <Table>
-          {/* Table Header */}
           <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
-            <TableRow>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Products
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Category
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Price
-              </TableCell>
-              <TableCell
-                isHeader
-                className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
-              >
-                Status
-              </TableCell>
-            </TableRow>
-          </TableHeader>
-
-          {/* Table Body */}
-
-          <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
-            {tableData.map(product => (
-              <TableRow key={product.id} className="">
-                <TableCell className="py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-[50px] w-[50px] overflow-hidden rounded-md">
-                      <Image
-                        width={50}
-                        height={50}
-                        src={product.image}
-                        className="h-[50px] w-[50px]"
-                        alt={product.name}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-medium text-gray-800 text-theme-sm dark:text-white/90">
-                        {product.name}
-                      </p>
-                      <span className="text-gray-500 text-theme-xs dark:text-gray-400">
-                        {product.variants}
-                      </span>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.price}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  {product.category}
-                </TableCell>
-                <TableCell className="py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                  <Badge
-                    size="sm"
-                    color={
-                      product.status === 'Delivered'
-                        ? 'success'
-                        : product.status === 'Pending'
-                          ? 'warning'
-                          : 'error'
-                    }
+            {table.getHeaderGroups().map(headerGroup => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map(header => (
+                  <TableHead
+                    key={header.id}
+                    className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                   >
-                    {product.status}
-                  </Badge>
-                </TableCell>
+                    {header.isPlaceholder
+                      ? null
+                      : typeof header.column.columnDef.header === 'function'
+                        ? header.column.columnDef.header(header.getContext())
+                        : header.column.columnDef.header}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody className="divide-y divide-gray-100 dark:divide-gray-800">
+            {table.getRowModel().rows.map(row => (
+              <TableRow key={row.id} className="">
+                {row.getVisibleCells().map(cell => (
+                  <TableCell key={cell.id} className="py-3">
+                    {typeof cell.column.columnDef.cell === 'function'
+                      ? cell.column.columnDef.cell(cell.getContext())
+                      : cell.getValue()}
+                  </TableCell>
+                ))}
               </TableRow>
             ))}
           </TableBody>
